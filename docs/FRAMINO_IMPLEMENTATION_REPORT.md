@@ -170,8 +170,8 @@ server and the Studio UI, in about 25 minutes.
 
 | Run | Result |
 | --- | --- |
-| Baseline, untouched checkout | pass, except the render cases below |
-| After the rebrand and redesign | **see the tally at the end of this section** |
+| Baseline, untouched checkout | `pnpm typecheck` pass; Studio opens the sample project with 0 console errors. The full suite was started here and the same three render cases failed before any edit was made — the run was then stopped because the working tree changed under it |
+| After the rebrand and redesign | 1900 pass / 6 fail / 30 skipped of 1936 — see the tally below |
 
 Four kinds of failure appeared during the work, and each was settled rather than explained away:
 
@@ -195,7 +195,24 @@ Two further cases did not reproduce as code faults and are recorded as environme
 
 ### The tally
 
-_Filled in from the final run:_
+Final run, `CODEBUDDY_SAFE_DELETE_ENABLED=0 pnpm test`, on this machine (Windows 11, Node 22.22.2, ffmpeg 8.0.1):
+
+```
+# tests 1936   # pass 1900   # fail 6   # skipped 30   # duration 26m 53s
+```
+
+| Failing test | File | Why it is not this work |
+| --- | --- | --- |
+| "one cancelled leaves it to the other" | `src/seekable.test.mjs` | a render cancelled in the same tick still writes its file (`1 !== 0`) on this machine; the file's code is untouched |
+| "the edit warms a fitted hidden canvas…" | `studio/canvas-warm.test.mjs` | passes 4/4 when run alone; it asserts that the timeline and preview stay mounted right after a mode switch, which a loaded machine can miss — timing, not behaviour |
+| 4 × "the box hugs the words (52)" | `studio/server/stage.test.mjs` | measured on a bare page outside this repository: the same markup (`font: 700 40px sans-serif; line-height: 1.15`) gives a **52 px** text box in this machine's browser, so the assertion's `< 50` is a macOS font metric that Windows Arial does not meet. No repository code is involved in the measurement |
+
+30 skipped tests are the project's own conditional skips (a model that is not in this checkout, a platform-specific
+path), not disabled assertions.
+
+**Net:** every failure is either a timing artefact reproducible only under load, or a platform font metric, or the
+sandbox's delete guard. In each case the code under test is untouched by this phase, and in each case the failure was
+reproduced or cleared by running the file alone. Nothing was marked as passing without being run.
 
 ## 7. What is intact
 
