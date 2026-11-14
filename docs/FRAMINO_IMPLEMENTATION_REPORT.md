@@ -143,6 +143,65 @@ module (`SyntaxError: Unexpected identifier 'openfilm'`), which failed the CLI a
 escaping the backticks, then `node --check` was run over **every** changed `.mjs`/`.js` file (all clean) and the CLI
 was exercised directly (`--help`, `--version`).
 
+### 4.7 The app icon, cut from the brand mark
+
+Upstream shipped two binaries (`build/icon.ico`, `build/icon.icns`) and a `scripts/make-ico.mjs` that could only run on
+macOS — it shelled out to `/usr/bin/sips` for every size. So the icon was the last surface still wearing the old mark:
+in the dock, in the taskbar, in the installer, in Add/Remove Programs.
+
+It is now generated from two SVG masters by `scripts/make-icons.mjs`, which rasterises through the Chrome the app's own
+tests already use:
+
+| Output | Contents |
+| --- | --- |
+| `logo-1024.png` | the master, transparent outside the tile |
+| `icon.png`, `icon-dev.png` | 256 px, what Electron's window and the dev bundle use |
+| `icon.ico` | 16, 24, 32, 48, 64, 256 px as PNG payloads |
+| `icon.icns`, `icon-dev.icns` | eleven representations (`icp4`…`ic14`) |
+
+The masters are `icon-source.svg` (tile `#181A19`, mark `#8BA58E`, the toolbar's own `f`) and `icon-source-dev.svg`
+(the mark lifted, a `#D08C4A` DEV pill). Each size is rasterised **at that size**, so 16 px gets a real 1.4 px stroke
+rather than a downscaled one. `make-ico.mjs` is gone: one script, any platform, no image library.
+
+Verified, because an icon is a binary nobody reads:
+
+- `icon.ico` — 6 directory entries, offsets contiguous, payloads decode as PNG;
+- `icon.icns` — the header's total length equals the file length, eleven chunks, and each chunk's PNG `IHDR` matches the
+  size its type promises;
+- the release script's own `windowsResources()` — the code that writes the icon into `Framino.exe` — was run against a
+  real PE file, then read back: **6 of 6 images byte-identical** to `build/icon.ico`, and the version resource reads
+  `ProductName: Framino`, `OriginalFilename: Framino.exe`, `LegalCopyright: Copyright © 2026 Framino contributors;
+  based on OpenFilm`.
+
+### 4.8 One regression the rename caused, and the strings the second sweep missed
+
+`agent-skills.mjs` decides whether a skill is the app's own by testing its description for the product name. The rename
+changed that description (`skills/openfilm/SKILL.md`) to "Framino" but left the test matching `OpenFilm`, so the app
+stopped recognising its own terminal skill and would have listed it as somebody else's — let in, and handed to every
+agent instead of hidden. It now accepts either name (a copy installed before the rename still says OpenFilm, and is the
+same skill), and the test asserts both directions, plus that the skill's manuals are *not* it.
+
+Seven more user-visible strings still named the old product. All were runtime copy, not comments:
+
+| Where | Was | Now |
+| --- | --- | --- |
+| `agent-skills.mjs` | `OpenFilm skills by …`, note `> OpenFilm skill …`, owner label `OpenFilm` | Framino |
+| `src/locations.mjs` | "OpenFilm keeps its own settings there" | Framino keeps its own settings there |
+| `src/skills-cli.mjs` | `installed, OpenFilm's` | `installed, Framino's` |
+| `studio/server/account.mjs` | "OpenFilm answered 503.", "OpenFilm could not be reached." | Framino |
+| `studio/server/fetch-github.mjs` | `user-agent: OpenFilm-Studio` | `Framino-Studio` |
+| `src/openfilm-command.mjs` | the generated shim's comment, on disk | Framino's own copy … |
+| `scripts/release.mjs` | installer `copyright`, Windows `LegalCopyright` | Framino contributors; based on OpenFilm |
+
+Deliberately still OpenFilm: file paths (`~/Movies/OpenFilm/Projects`, `~/.openfilm`, `OPENFILM_*`), the npm package and
+the `openfilm` command, the account service's own name, and upstream attribution — changing any of them would orphan a
+person's projects or misattribute the original work.
+
+Seven desktop test files were still asserting the *old* copy — the update dialogs in Korean and Spanish, the Codex and
+Antigravity "older than … needs" notices, the agent prompt's skills sentence, the Studio reference pills, and the
+account-trouble sample. They were updated to the product's actual words rather than reverting the copy, which is what
+makes the desktop suite green again (§6).
+
 ## 5. What was verified
 
 | Test | Method | Result |
@@ -161,17 +220,22 @@ was exercised directly (`--help`, `--version`).
 | TypeScript | `pnpm typecheck` (server + UI) | pass |
 | UI build | `vite build` | pass (2065 modules) |
 | CLI | `node bin/openfilm.mjs --help` / `--version` | pass |
+| **App icon set is Framino** | `make-icons.mjs` output, inspected 16 → 1024 px on dark and light | mark legible at 16 px, tile edge clean, 6 ICO entries / 11 ICNS representations |
+| **Icon survives the Windows resource step** | release script's `windowsResources()` run on a real PE, then read back | 6/6 images byte-identical to `build/icon.ico`; `ProductName: Framino` |
 | Full test suite | `pnpm test` | see §6 |
 
 ## 6. Test results
 
-`pnpm test` runs 1936 subtests (1920 TAP entries, 30 skipped by design) across the CLI, the renderer, the Studio
-server and the Studio UI, in about 25 minutes.
+`pnpm test` runs the `openfilm` package: 1936 subtests (1920 TAP entries, 30 skipped by design) across the CLI, the
+renderer, the Studio server and the Studio UI, in about 28 minutes. It also runs `@openfilm/shared`, but it stops at
+the first package that fails (`ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL`), which is `openfilm` — so the desktop app's own
+suite was run on its own and is counted separately.
 
 | Run | Result |
 | --- | --- |
 | Baseline, untouched checkout | `pnpm typecheck` pass; Studio opens the sample project with 0 console errors. The full suite was started here and the same three render cases failed before any edit was made — the run was then stopped because the working tree changed under it |
 | After the rebrand and redesign | 1900 pass / 6 fail / 30 skipped of 1936 — see the tally below |
+| After the icon and copy pass | 1902 pass / 4 fail / 30 skipped of 1936 (`openfilm`) and 464 pass / 2 fail / 6 skipped of 472 (`apps/desktop`) |
 
 Four kinds of failure appeared during the work, and each was settled rather than explained away:
 
@@ -195,24 +259,26 @@ Two further cases did not reproduce as code faults and are recorded as environme
 
 ### The tally
 
-Final run, `CODEBUDDY_SAFE_DELETE_ENABLED=0 pnpm test`, on this machine (Windows 11, Node 22.22.2, ffmpeg 8.0.1):
+Final runs, this machine (Windows 11, Node 22.22.2, ffmpeg 8.0.1):
 
-```
-# tests 1936   # pass 1900   # fail 6   # skipped 30   # duration 26m 53s
-```
+| Suite | Command | Result |
+| --- | --- | --- |
+| `openfilm` — CLI, renderer, Studio server, Studio UI | `CODEBUDDY_SAFE_DELETE_ENABLED=0 pnpm test` | **1902 pass / 4 fail / 30 skipped of 1936**, 28m 16s |
+| `apps/desktop` — main process, chat bridge, agent bridge, menus, update dialogs | `node --test src/*.test.mjs scripts/*.test.mjs` | **464 pass / 2 fail / 6 skipped of 472**, 30s |
+
+The six remaining failures, all settled:
 
 | Failing test | File | Why it is not this work |
 | --- | --- | --- |
-| "one cancelled leaves it to the other" | `src/seekable.test.mjs` | a render cancelled in the same tick still writes its file (`1 !== 0`) on this machine; the file's code is untouched |
-| "the edit warms a fitted hidden canvas…" | `studio/canvas-warm.test.mjs` | passes 4/4 when run alone; it asserts that the timeline and preview stay mounted right after a mode switch, which a loaded machine can miss — timing, not behaviour |
-| 4 × "the box hugs the words (52)" | `studio/server/stage.test.mjs` | measured on a bare page outside this repository: the same markup (`font: 700 40px sans-serif; line-height: 1.15`) gives a **52 px** text box in this machine's browser, so the assertion's `< 50` is a macOS font metric that Windows Arial does not meet. No repository code is involved in the measurement |
+| "its box hugs its own words", "the words beside it did not move" ×3 | `studio/server/stage.test.mjs` | text-box measurements against the local browser's fallback font. The measured box is **52 px** where the assertion wants `< 50`, and the others differ by under a point (`81.5` vs `82.3`). Reproduced on a bare page with the same markup, outside this repository: it is the platform's Arial metrics, not the code |
+| "an agent given this machine's registry environment…", "a registry value naming folders in Chinese…" | `apps/desktop/src/environment.test.mjs` | the sandbox blacklists `reg.exe`, which these two tests run to read the real registry. Both are guarded to Windows and cannot run here; the code they cover is untouched |
 
-30 skipped tests are the project's own conditional skips (a model that is not in this checkout, a platform-specific
+30 + 6 skipped tests are the project's own conditional skips (a model that is not in this checkout, a platform-specific
 path), not disabled assertions.
 
-**Net:** every failure is either a timing artefact reproducible only under load, or a platform font metric, or the
-sandbox's delete guard. In each case the code under test is untouched by this phase, and in each case the failure was
-reproduced or cleared by running the file alone. Nothing was marked as passing without being run.
+**Net:** every failure is either a browser font metric or a program the sandbox refuses to start. In each case the code
+under test is untouched by this phase, and in each case the failure was reproduced or cleared by running the file
+alone with the guard off. Nothing was marked as passing without being run.
 
 ## 7. What is intact
 
@@ -228,15 +294,16 @@ reproduced or cleared by running the file alone. Nothing was marked as passing w
 | Item | Status | Why |
 | --- | --- | --- |
 | Agent conversation inside the browser Studio | **not implemented** — the panel says so | the real chat lives in the desktop app; faking a turn was explicitly out of bounds |
-| Desktop installer icons (`build/icon.ico`, `icon.icns`) | still upstream artwork | binary icon sets need a packaging step (macOS `iconutil`), out of this phase; must be replaced before shipping a packaged build |
+| Full packaged build (`release --platform=win`) | **not run** | it downloads the Electron binary from `github.com`, which this sandbox cannot reach (curl returns 000), and the npm mirror answers at ~34 KB/s, so the ~300-package stage install would run for hours. The icon half of that step is verified independently (§4.7) |
+| Code signing (macOS notarisation, Windows certificate) | not done | no certificates in this environment; `--unsigned` builds are what the script produces without them |
 | Marketing site, onboarding, billing | not started | out of scope for this phase |
-| Windows packaging of the desktop app | not run | requires code signing; not needed to validate the editor |
 | Named-layout presets for the studio look | unchanged | they are the upstream presets; changing them would break saved layouts |
 
 ## 9. Next three things worth doing
 
-1. **Replace the desktop bundle icons** and run one packaged build end to end, so the app people install is Framino
-   everywhere, not just in the window.
+1. **Run the packaged build once** on a machine with unrestricted network access, then sign it: `release --platform=win`
+   and `release --official` for macOS. The icons it embeds are now Framino's (§4.7), so this is a build-and-sign step,
+   not a design one.
 2. **Make the Agent panel live in the browser Studio** by connecting it to the same agent bridge the desktop chat uses
    (one event source, one project writer), then remove the "not connected" state.
 3. **Give the timeline a second pass of editor craft** — track headers with mute/solo/level, clip thumbnails on the

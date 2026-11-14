@@ -38,6 +38,22 @@ Wordmark    framino   (lowercase, tight tracking, never a decorative graphic)
   (`docs/logo-light.svg`, `docs/logo-dark.svg`, `components/BrandLogo.tsx`).
 - The brand is quiet in the toolbar: one wordmark, one 1px rule, no box behind it.
 
+### App icon
+
+The icon is the same stroke, not a second drawing of the brand:
+
+| Part | Value |
+| --- | --- |
+| Master | `apps/desktop/build/icon-source.svg`, 1024 × 1024 |
+| Tile | `#181A19` (the editing room's darkest surface), corner radius 22.5%, 2 px `#353A36` inset edge |
+| Mark | `#8BA58E` (`--studio-accent`), the toolbar's `f` at 64% of the tile |
+| Dev variant | `icon-source-dev.svg` — the mark lifted, plus a `#D08C4A` DEV pill, so a local build is never mistaken for a release |
+
+`pnpm --filter @openfilm/desktop icons` derives every file from those two masters: `logo-1024.png`, `icon.png` and
+`icon-dev.png` (256), `icon.ico` (16/24/32/48/64/256 as PNG payloads) and `icon.icns` / `icon-dev.icns` (eleven
+representations). Chrome rasterises each size **at that size** rather than downscaling one big render, which is what
+keeps the 16 px raster a 1.4 px stroke instead of a grey smear. No image library and no new dependency.
+
 ### Typography
 
 | Role | Token | Value |
