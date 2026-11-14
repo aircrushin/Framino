@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Framino — AI Video Production Studio</title>
+<meta name="description" content="Your coding agent writes the film. You edit it in a real editor. One project on disk, no import step, no second copy that can drift.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23181A19'/%3E%3Cg fill='none' stroke='%238BA58E' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M13 25V11a3 3 0 0 1 3-3h2'/%3E%3Cpath d='M10 16h8'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  /* ── tokens: the same values the Studio ships (docs/FRAMINO_DESIGN_SYSTEM.md) ───────────── */
+  :root {
+    --bg: #181a19;
+    --panel: #202321;
+    --elevated: #282c29;
+    --border: #353a36;
+    --well: #141614;
+    --text: #e5e8e4;
+    --text-2: #a0a7a1;
+    --muted: #707a72;
+    --accent: #8ba58e;
+    --accent-active: #a5bfa6;
+    --selection: #344b39;
+    --sage: #64836d;
+    --forest: #34483a;
+    --mint: #dce9dd;
+    --cream: #f5f7f1;
+    --track-video: #557d69;
+    --track-audio: #9b835c;
+    --track-text: #718ba5;
+    --warn: #d2a66f;
+    --font: Inter, "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --r: 3px;
+    --max: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection { background: var(--selection); color: var(--cream); }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.02em; line-height: 1.12; }
+  p { margin: 0; }
+  code, pre, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 32px; }
+  .rule { height: 1px; background: var(--border); border: 0; margin: 0; }
+
+  /* small caps label — 10px, 600, 0.11em, never uppercase in CJK */
+  .label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.11em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* ── top bar ─────────────────────────────────────────────────────────────────────────────── */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(24, 26, 25, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar { display: flex; align-items: center; gap: 28px; height: 56px; }
+  .mark { display: flex; align-items: center; gap: 9px; }
+  .mark svg { display: block; }
+  .mark span { font-size: 17px; font-weight: 600; letter-spacing: -0.03em; }
+  nav { display: flex; gap: 22px; margin-left: 8px; }
+  nav a { font-size: 13px; color: var(--text-2); transition: color 90ms ease-out; }
+  nav a:hover { color: var(--text); }
+  .bar .spacer { flex: 1; }
+  .ghost {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 30px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--r);
+    font-size: 12.5px; font-weight: 500; color: var(--text-2);
+    transition: border-color 90ms ease-out, color 90ms ease-out;
+  }
+  .ghost:hover { border-color: var(--muted); color: var(--text); }
+  .primary {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 30px; padding: 0 13px; border-radius: var(--r);
+    background: var(--accent); color: #16201a;
+    font-size: 12.5px; font-weight: 600;
+    transition: background 90ms ease-out;
+  }
+  .primary:hover { background: var(--accent-active); }
+
+────────────────────────────────────────────────────────────────────────────────── */
+  .hero { padding: 92px 0 0; }
+  .hero-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: 11.5px; color: var(--text-2); margin-bottom: 26px;
+  }
+  .eyebrow .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .eyebrow .sep { width: 1px; height: 11px; background: var(--border); }
+  h1 {
+    font-size: clamp(38px, 5vw, 62px);
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+    max-width: 20ch;
+    text-wrap: balance;
+  }
+  h1 em { font-style: normal; color: var(--accent); display: block; }
+  .lede {
+    margin-top: 26px; max-width: 56ch;
+    font-size: 17px; line-height: 1.62; color: var(--text-2);
+  }
+  .lede strong { color: var(--text); font-weight: 500; }
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 34px; }
+  .btn-lg {
+    display: inline-flex; align-items: center; gap: 9px;
+    height: 42px; padding: 0 20px; border-radius: var(--r);
+    background: var(--accent); color: #16201a;
+    font-size: 14px; font-weight: 600;
+    transition: background 90ms ease-out;
+  }
+  .btn-lg:hover { background: var(--accent-active); }
+  .btn-lg.outline {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-lg.outline:hover { border-color: var(--muted); background: var(--panel); }
+  .cmd {
+    display: inline-flex; align-items: center; gap: 10px;
+    height: 42px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--r);
+    background: var(--well); color: var(--text-2); font-size: 12.5px; font-family: var(--mono);
+  }
+  .cmd .p { color: var(--accent); }
+
+  /* screenshot frame — a hairline, one brightness step, no glow */
+  .frame {
+    margin-top: 56px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+  .frame-bar {
+    display: flex; align-items: center; gap: 10px;
+    height: 34px; padding: 0 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--elevated);
+  }
+  .frame-bar .dots { display: flex; gap: 5px; }
+  .frame-bar .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--border); display: block; }
+  .frame-bar .path { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .frame-bar .tag {
+    margin-left: auto; flex-shrink: 0; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); white-space: nowrap;
+  }
+  .frame img { width: 100%; height: auto; }
+  .caption {
+    margin-top: 12px; font-size: 12.5px; color: var(--muted);
+    display: flex; gap: 8px; align-items: baseline;
+  }
+  .caption b { color: var(--text-2); font-weight: 500; }
+
+  /* ── spec strip: real numbers only ──────────────────────────────────────────────────────── */
+  .specs {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    margin-top: 72px;
+  }
+  .spec { padding: 22px 24px; border-right: 1px solid var(--border); }
+  .spec:last-child { border-right: 0; }
+  .spec .n { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+  .spec .n small { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-left: 3px; }
+  .spec .k { margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+
+  /* ── section shell ──────────────────────────────────────────────────────────────────────── */
+  section { padding: 84px 0; scroll-margin-top: 56px; }
+  .close { scroll-margin-top: 56px; }
+  .sec-head { display: grid; grid-template-columns: 132px minmax(0, 760px); gap: 48px; align-items: start; }
+  .sec-head h2 { font-size: clamp(25px, 2.7vw, 33px); letter-spacing: -0.03em; max-width: 30ch; text-wrap: balance; }
+  .sec-head .body { min-width: 0; }
+  .sec-head .body p { color: var(--text-2); font-size: 15.5px; margin-top: 18px; }
+  .sec-head .body p + p { margin-top: 14px; }
+  .sec-head .body strong { color: var(--text); font-weight: 500; }
+
+  /* ── pipeline: eight steps on one rule, not eight cards ─────────────────────────────────── */
+  .pipe { margin-top: 56px; border-top: 1px solid var(--border); }
+  .step {
+    display: grid; grid-template-columns: 44px 150px 1fr 120px;
+    gap: 24px; align-items: baseline;
+    padding: 17px 4px; border-bottom: 1px solid var(--border);
+    transition: background 90ms ease-out;
+  }
+  .step:hover { background: var(--panel); }
+  .step .i { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .step .t { font-size: 14px; font-weight: 500; }
+  .step .d { font-size: 13.5px; color: var(--text-2); }
+  .step .o { font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: right; }
+  .step.gate { background: rgba(52, 75, 57, 0.28); }
+  .step.gate .t { color: var(--accent-active); }
+  .step.gate .i { color: var(--accent); }
+
+  /* ── case study ─────────────────────────────────────────────────────────────────────────── */
+  .case {
+    margin-top: 48px;
+    border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+    background: var(--panel);
+  }
+  .case-top {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 14px;
+    padding: 20px 24px; border-bottom: 1px solid var(--border);
+  }
+  .case-top h3 { font-size: 18px; letter-spacing: -0.02em; }
+  .case-top .meta { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .case-top .badge {
+    margin-left: auto; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent);
+    border: 1px solid var(--forest); background: rgba(52, 72, 58, 0.4);
+    padding: 3px 8px; border-radius: 2px;
+  }
+  .shots { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .shot { border-right: 1px solid var(--border); }
+  .shot:last-child { border-right: 0; }
+  .shot .img { aspect-ratio: 16 / 9; background: var(--well); overflow: hidden; }
+  .shot .img img { width: 100%; height: 100%; object-fit: cover; }
+  .shot .info { padding: 12px 14px 15px; }
+  .shot .id { font-family: var(--mono); font-size: 10.5px; color: var(--muted); display: flex; justify-content: space-between; }
+  .shot .id .dur { color: var(--text-2); }
+  .shot .sub { margin-top: 7px; font-size: 12.5px; color: var(--text); line-height: 1.4; }
+  .shot .vo { margin-top: 5px; font-size: 11px; color: var(--muted); }
+
+  .case-bottom { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); }
+  .case-bottom > div { padding: 20px 24px; }
+  .case-bottom > div + div { border-left: 1px solid var(--border); }
+  .case-bottom h4 { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  pre {
+    margin: 0; padding: 0; overflow-x: auto;
+    font-size: 11.5px; line-height: 1.75; color: var(--text-2);
+  }
+  pre .k { color: var(--track-text); }
+  pre .a { color: var(--accent); }
+  pre .s { color: var(--track-audio); }
+  pre .c { color: var(--muted); }
+  .facts { display: grid; gap: 9px; }
+  .fact { display: flex; justify-content: space-between; gap: 16px; font-size: 12.5px; }
+  .fact .fk { color: var(--muted); }
+  .fact .fv { font-family: var(--mono); font-size: 11.5px; color: var(--text); }
+
+  /* ── two-up screenshots ─────────────────────────────────────────────────────────────────── */
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+  .duo .frame { margin-top: 0; }
+
+  /* ── library table ──────────────────────────────────────────────────────────────────────── */
+  .lib { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 40px; border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
+  .lib > div {
+    padding: 15px 16px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .lib > div:nth-child(4n) { border-right: 1px solid var(--border); }
+  .lib .n { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+  .lib .k { margin-top: 5px; font-size: 11px; color: var(--muted); }
+
+  /* ── export list ────────────────────────────────────────────────────────────────────────── */
+  .exports { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
+  .chip {
+    font-size: 12px; padding: 6px 11px; border: 1px solid var(--border); border-radius: 2px;
+    color: var(--text-2); background: var(--panel);
+  }
+
+  /* ── install ────────────────────────────────────────────────────────────────────────────── */
+  .install { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 44px; }
+  .term {
+    border: 1px solid var(--border); border-radius: 6px; background: var(--well); overflow: hidden;
+  }
+  .term .h {
+    display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px;
+    border-bottom: 1px solid var(--border); background: var(--elevated);
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  }
+  .term pre { padding: 16px; font-size: 12px; line-height: 1.9; }
+  .term .p { color: var(--accent); }
+  .term .cm { color: var(--muted); }
+
+  /* ── closing ────────────────────────────────────────────────────────────────────────────── */
+  .close { padding: 100px 0 0; }
+  .close h2 { font-size: clamp(30px, 4vw, 46px); letter-spacing: -0.035em; max-width: 20ch; }
+  .close p { margin-top: 20px; color: var(--text-2); max-width: 54ch; font-size: 16px; }
+
+  footer {
+    margin-top: 96px; border-top: 1px solid var(--border);
+    padding: 32px 0 48px;
+  }
+  .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; font-size: 12.5px; color: var(--muted); }
+  .foot .spacer { flex: 1; }
+  .foot a:hover { color: var(--text); }
+
+  /* ── responsive ─────────────────────────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .wrap { padding: 0 20px; }
+    .hero { padding-top: 60px; }
+    .specs { grid-template-columns: repeat(2, 1fr); }
+    .spec:nth-child(2) { border-right: 0; }
+    .spec:nth-child(1), .spec:nth-child(2) { border-bottom: 1px solid var(--border); }
+    .sec-head { grid-template-columns: 1fr; gap: 18px; }
+    .step { grid-template-columns: 32px 1fr; gap: 12px; }
+    .step .d, .step .o { grid-column: 2; }
+    .step .o { text-align: left; }
+    .shots { grid-template-columns: repeat(2, 1fr); }
+    .shot:nth-child(2) { border-right: 0; }
+    .shot:nth-child(1), .shot:nth-child(2) { border-bottom: 1px solid var(--border); }
+    .case-bottom { grid-template-columns: 1fr; }
+    .case-bottom > div + div { border-left: 0; border-top: 1px solid var(--border); }
+    .duo { grid-template-columns: 1fr; }
+    .lib { grid-template-columns: repeat(2, 1fr); }
+    .lib div:nth-child(2n) { border-right: 1px solid var(--border); }
+    .install { grid-template-columns: 1fr; }
+    nav { display: none; }
+  }
+  @media (max-width: 560px) {
+    .shots { grid-template-columns: 1fr; }
+    .shot { border-right: 0; border-bottom: 1px solid var(--border); }
+    .specs { grid-template-columns: 1fr; }
+    .spec { border-right: 0; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="mark" href="#top" aria-label="Framino home">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8ba58e" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 21V8a2.5 2.5 0 0 1 2.5-2.5H15"/>
+        <path d="M7 12h7"/>
+      </svg>
+      <span>framino</span>
+    </a>
+    <nav>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#case">Case</a>
+      <a href="#agent">Agent &amp; Studio</a>
+      <a href="#library">Library</a>
+      <a href="#install">Install</a>
+    </nav>
+    <span class="spacer"></span>
+    <a class="ghost" href="#install">Docs</a>
+    <a class="primary" href="#install">Get started</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ── hero ─────────────────────────────────────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="eyebrow">
+          <span class="dot"></span>
+          <span>AI Video Production Studio</span>
+          <span class="sep"></span>
+          <span>Open source · MIT</span>
+        </div>
+        <h1><span>Your agent writes the film.</span> <em>You keep the cut.</em></h1>
+        <p class="lede">
+          Framino is the workbench between your coding agent and the video models. The agent writes the script,
+          the storyboard and the shots. You open a real editor and work on it like an editor does:
+          trim, move, rewrite subtitles, set levels, export.
+          <strong>One project on disk — no import step, no second copy that can drift.</strong>
+        </p>
+        <div class="cta-row">
+          <a class="btn-lg" href="#install">Install Framino</a>
+          <a class="btn-lg outline" href="#case">See a real project</a>
+          <span class="cmd"><span class="p">$</span> corepack pnpm dev</span>
+        </div>
+      </div>
+
+      <figure class="frame" style="margin-bottom:0">
+        <div class="frame-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="path">framino studio — the-long-summer</span>
+          <span class="tag">Real screenshot</span>
+        </div>
+        <img src="assets/studio-hero.webp" width="3200" height="2000"
+             alt="Framino Studio editing a four-shot film: media library on the left, preview monitor with a rain-soaked night street and a burned-in subtitle, inspector on the right, and a three-track timeline with four video clips, a caption track and a music bed.">
+      </figure>
+      <p class="caption">
+        <b>Not a mockup.</b>
+        <span>Framino Studio, opened on the project built below — 4 shots, 3 tracks, 5 clips, 7.1 s, revision <code>ce0204c6b9</code>.</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ── real numbers ─────────────────────────────────────────────────────────────────────── -->
+  <div class="wrap">
+    <div class="specs">
+      <div class="spec">
+        <div class="n">53<small>/53</small></div>
+        <div class="k">tests passing in the production package</div>
+      </div>
+      <div class="spec">
+        <div class="n">8<small>steps</small></div>
+        <div class="k">idea to exported MP4, with a human gate</div>
+      </div>
+      <div class="spec">
+        <div class="n">0<small>cloud</small></div>
+        <div class="k">projects, accounts or credits in the middle</div>
+      </div>
+      <div class="spec">
+        <div class="n">1<small>folder</small></div>
+        <div class="k">the agent and the editor read the same files</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── pipeline ─────────────────────────────────────────────────────────────────────────── -->
+  <section id="pipeline">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">The pipeline</div>
+        <div class="body">
+          <h2>Others stop at the download. Framino hands you the project.</h2>
+          <p>
+            The agent captures the brief, writes the script, designs the storyboard, calls the video model shot by
+            shot, lands and validates the media, then assembles a project. You approve before anything is generated,
+            and you edit after.
+          </p>
+          <p>
+            Every step writes to a manifest that doubles as a ledger. A task is recorded before the call, a task left
+            running is resolved against the disk instead of being resubmitted, and every retry is a new take with a
+            new file name — so nothing is overwritten and nobody pays twice.
+          </p>
+        </div>
+      </div>
+
+      <div class="pipe">
+        <div class="step"><span class="i">01</span><span class="t">Idea</span><span class="d">Topic, audience, length, aspect ratio, style, platform, language, budget limits.</span><span class="o">manifest.brief</span></div>
+        <div class="step"><span class="i">02</span><span class="t">Script</span><span class="d">Hook, scenes, voice-over, dialogue, subtitles, ending, pacing.</span><span class="o">production/script.md</span></div>
+        <div class="step"><span class="i">03</span><span class="t">Storyboard</span><span class="d">One structured entry per shot: framing, movement, lighting, prompt, voice-over, subtitle.</span><span class="o">manifest.shots[]</span></div>
+        <div class="step gate"><span class="i">04</span><span class="t">Your approval</span><span class="d">Script and storyboard are approved by a person before a single second is generated.</span><span class="o">manifest.approval</span></div>
+        <div class="step"><span class="i">05</span><span class="t">Generation</span><span class="d">One call per shot through the service you connected. You confirm the spend. Regenerating one shot touches no other.</span><span class="o">manifest.tasks[]</span></div>
+        <div class="step"><span class="i">06</span><span class="t">Asset pipeline</span><span class="d">Probe duration, resolution, fps and codecs. A file that does not decode never enters the project.</span><span class="o">manifest.assets[]</span></div>
+        <div class="step"><span class="i">07</span><span class="t">Assembly</span><span class="d">Each shot its own clip, separate audio tracks, captions on their own track, every shot replaceable.</span><span class="o">film.html</span></div>
+        <div class="step"><span class="i">08</span><span class="t">Edit &amp; export</span><span class="d">You work in Studio. Edits are written to disk as you make them, so the agent sees them and keeps them.</span><span class="o">MP4 · NLE · stills</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ── case study ───────────────────────────────────────────────────────────────────────── -->
+  <section id="case">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">A real project</div>
+        <div class="body">
+          <h2>The Long Summer — a title sequence, assembled by the adapter.</h2>
+          <p>
+            Four shots, two scenes, a caption track and a music bed. The manifest below was written by hand and
+            assembled by the real <code>assemble()</code> in <code>packages/framino-production/src/adapter.mjs</code>
+            — the same code path the tests exercise. The footage is cut from the <code>cinema-open</code> film that
+            ships in Framino's own library, so every asset records <code>origin: "library"</code> and no clip is
+            marked as a test fixture.
+          </p>
+        </div>
+      </div>
+
+      <div class="case">
+        <div class="case-top">
+          <h3>The Long Summer</h3>
+          <span class="meta">project_id: the-long-summer · 1920×1080 · 30 fps · 7.1 s</span>
+          <span class="badge">Assembled, not mocked</span>
+        </div>
+
+        <div class="shots">
+          <div class="shot">
+            <div class="img"><img src="assets/frame-sh01.jpg" width="480" height="270" alt="A woman with an umbrella crossing a rain-soaked street at night, shop windows and a red traffic light reflected in the wet asphalt."></div>
+            <div class="info">
+              <div class="id"><span>sh01 · sc01</span><span class="dur">1.7 s</span></div>
+              <div class="sub">She left on a Tuesday, in the rain.</div>
+              <div class="vo">slow lateral tracking</div>
+            </div>
+          </div>
+          <div class="shot">
+            <div class="img"><img src="assets/frame-sh02.jpg" width="480" height="270" alt="A train window at dusk: a reflection in the glass with a green valley passing outside."></div>
+            <div class="info">
+              <div class="id"><span>sh02 · sc01</span><span class="dur">1.2 s</span></div>
+              <div class="sub">The city kept its weather.</div>
+              <div class="vo">locked off, reflection drift</div>
+            </div>
+          </div>
+          <div class="shot">
+            <div class="img"><img src="assets/frame-sh03.jpg" width="480" height="270" alt="A fog-covered mountain road at first light, with a single car climbing and the sun breaking through the mist."></div>
+            <div class="info">
+              <div class="id"><span>sh03 · sc02</span><span class="dur">2.6 s</span></div>
+              <div class="sub">The mountains kept theirs.</div>
+              <div class="vo">slow push in</div>
+            </div>
+          </div>
+          <div class="shot">
+            <div class="img"><img src="assets/frame-sh04.jpg" width="480" height="270" alt="A letterboxed title card over the fogged mountain road."></div>
+            <div class="info">
+              <div class="id"><span>sh04 · sc02</span><span class="dur">1.6 s</span></div>
+              <div class="sub">The Long Summer</div>
+              <div class="vo">locked off</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="case-bottom">
+          <div>
+            <h4>What the adapter wrote — film.html</h4>
+            <pre><span class="c">&lt;!-- one section per track, top layer first --&gt;</span>
+&lt;<span class="k">section</span> <span class="a">data-framino-track</span>=<span class="s">"captions"</span>&gt;
+  &lt;<span class="k">track</span> <span class="a">kind</span>=<span class="s">"captions"</span> <span class="a">src</span>=<span class="s">"captions/film.vtt"</span>
+         <span class="a">srclang</span>=<span class="s">"en"</span> <span class="a">label</span>=<span class="s">"English"</span>&gt;
+&lt;/<span class="k">section</span>&gt;
+&lt;<span class="k">section</span> <span class="a">data-framino-track</span>=<span class="s">"video"</span>&gt;
+  &lt;<span class="k">video</span> <span class="a">id</span>=<span class="s">"sh01"</span> <span class="a">src</span>=<span class="s">"assets/video/sh01-t1.mp4#t=0,1.7"</span>
+         <span class="a">data-shot-id</span>=<span class="s">"sh01"</span> <span class="a">data-scene-id</span>=<span class="s">"sc01"</span>
+         <span class="a">data-asset-id</span>=<span class="s">"video-sh01-t1"</span>&gt;&lt;/<span class="k">video</span>&gt;
+  &lt;<span class="k">video</span> <span class="a">id</span>=<span class="s">"sh02"</span> <span class="a">src</span>=<span class="s">"assets/video/sh02-t1.mp4#t=0,1.2"</span>
+         <span class="a">at</span>=<span class="s">"1.7"</span> <span class="a">data-shot-id</span>=<span class="s">"sh02"</span> …&gt;&lt;/<span class="k">video</span>&gt;
+&lt;/<span class="k">section</span>&gt;
+&lt;<span class="k">section</span> <span class="a">data-framino-track</span>=<span class="s">"music"</span>&gt;
+  &lt;<span class="k">audio</span> <span class="a">id</span>=<span class="s">"music-bed"</span> <span class="a">src</span>=<span class="s">"assets/audio/music-bed.m4a"</span>
+         <span class="a">volume</span>=<span class="s">"0.28"</span> <span class="a">data-asset-id</span>=<span class="s">"music-bed"</span>&gt;&lt;/<span class="k">audio</span>&gt;
+&lt;/<span class="k">section</span>&gt;</pre>
+          </div>
+          <div>
+            <h4>What the run reported</h4>
+            <div class="facts">
+              <div class="fact"><span class="fk">film_rev</span><span class="fv">ce0204c6b9…</span></div>
+              <div class="fact"><span class="fk">shots placed</span><span class="fv">sh01 sh02 sh03 sh04</span></div>
+              <div class="fact"><span class="fk">shots skipped</span><span class="fv">none</span></div>
+              <div class="fact"><span class="fk">tracks</span><span class="fv">captions, video, music</span></div>
+              <div class="fact"><span class="fk">caption cues</span><span class="fv">4</span></div>
+              <div class="fact"><span class="fk">asset origin</span><span class="fv">library ×5</span></div>
+              <div class="fact"><span class="fk">test fixtures</span><span class="fv">0</span></div>
+              <div class="fact"><span class="fk">assembled twice</span><span class="fv">byte-identical</span></div>
+            </div>
+            <p style="margin-top:16px;font-size:12px;color:var(--muted);line-height:1.6">
+              Assembling is a fixed point: the second run writes nothing, because the text it would write is the text
+              already on disk. That is what makes it safe to re-run after an agent edit.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ── agent & studio ───────────────────────────────────────────────────────────────────── -->
+  <section id="agent">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">Agent &amp; Studio</div>
+        <div class="body">
+          <h2>Two modes, one file. A change made by one is the state the other reads.</h2>
+          <p>
+            <strong>Agent mode</strong> — your coding agent creates and changes the project.<br>
+            <strong>Studio mode</strong> — you review and edit by hand.
+          </p>
+          <p>
+            The Agent panel shows the project's real state — tracks, clips and revision read from disk — and the real
+            event stream: film writes, exports, files, canvas, history. It does not pretend a conversation happened.
+            In the browser Studio there is no chat of its own, and the panel says exactly that: an instruction
+            composed there is copied for your agent, never presented as run.
+          </p>
+        </div>
+      </div>
+
+      <figure class="frame" style="margin-top:48px">
+        <div class="frame-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="path">agent panel — project state read from disk</span>
+        </div>
+        <img src="assets/studio-agent.webp" width="3200" height="2000"
+             alt="The Framino Agent panel open beside the editor, showing project context read from disk: 1920 by 1080 stage, 3 tracks, 5 clips, revision ce0204c6b9, an honest connection notice, and example instructions.">
+      </figure>
+      <p class="caption">
+        <b>Every number in that panel comes from the file.</b>
+        <span>1920 × 1080 · 3 tracks · 5 clips · revision <code>ce0204c6b9</code> — read from <code>film.html</code>, not typed into a component.</span>
+      </p>
+
+      <figure class="frame" style="margin-top:32px">
+        <div class="frame-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="path">timeline — four shots, four captions, one music bed</span>
+        </div>
+        <img src="assets/studio-timeline.webp" width="2350" height="476"
+             alt="Timeline detail: a caption track with four subtitle clips, a video track with four clips each carrying its shot id and duration, and a music bed on an audio track.">
+      </figure>
+      <p class="caption">
+        <b>Caption cues are generated from the shots, not typed twice.</b>
+        <span>Each cue takes its shot id and lands on the film second its picture really starts at.</span>
+      </p>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ── library ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="library">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">The library</div>
+        <div class="body">
+          <h2>Everything in the timeline is a file you already have.</h2>
+          <p>
+            A film is a folder with a <code>film.html</code>: tracks of clips cut together, styled with CSS. The agent
+            already knows the web, so nothing new has to be learned — and nothing is locked behind a service.
+            Counted from <code>packages/openfilm/library/</code> in this repository.
+          </p>
+        </div>
+      </div>
+
+      <div class="lib">
+        <div><div class="n">78</div><div class="k">text styles</div></div>
+        <div><div class="n">71</div><div class="k">effects</div></div>
+        <div><div class="n">64</div><div class="k">motion presets</div></div>
+        <div><div class="n">61</div><div class="k">transitions</div></div>
+        <div><div class="n">56</div><div class="k">stickers</div></div>
+        <div><div class="n">20</div><div class="k">sound effects</div></div>
+        <div><div class="n">14</div><div class="k">templates</div></div>
+        <div><div class="n">2</div><div class="k">colour filters</div></div>
+      </div>
+
+      <div class="exports">
+        <span class="chip">MP4</span>
+        <span class="chip">GIF</span>
+        <span class="chip">Audio / stems</span>
+        <span class="chip">Subtitles</span>
+        <span class="chip">Stills</span>
+        <span class="chip">Transparent video</span>
+        <span class="chip">Final Cut Pro</span>
+        <span class="chip">Premiere Pro</span>
+        <span class="chip">DaVinci Resolve</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ── install ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="install">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">Install</div>
+        <div class="body">
+          <h2>Node 22.18+, pnpm 9, git. ffmpeg for rendering.</h2>
+          <p>
+            The first render downloads a headless Chromium, about 100 MB — the same engine the preview draws with, so
+            what you see is what you export.
+          </p>
+        </div>
+      </div>
+
+      <div class="install">
+        <div class="term">
+          <div class="h">From source</div>
+          <pre><span class="p">$</span> git clone https://github.com/aircrushin/Framino
+<span class="p">$</span> cd Framino
+<span class="p">$</span> corepack enable
+<span class="p">$</span> pnpm install
+<span class="p">$</span> pnpm dev            <span class="cm"># Studio on 127.0.0.1:4848</span></pre>
+        </div>
+        <div class="term">
+          <div class="h">Drive it from your agent</div>
+          <pre><span class="p">$</span> openfilm open "/path/to/project"  <span class="cm"># Studio opens on it</span>
+<span class="p">$</span> openfilm look                    <span class="cm"># check the film</span>
+<span class="p">$</span> openfilm render                  <span class="cm"># the MP4</span>
+<span class="p">$</span> openfilm get video               <span class="cm"># media, shot by shot</span>
+<span class="p">$</span> openfilm skills                  <span class="cm"># what a film is made with</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── closing ──────────────────────────────────────────────────────────────────────────── -->
+  <div class="close">
+    <div class="wrap">
+      <h2>The AI makes an editable project, not a file.</h2>
+      <p>
+        That is the whole difference. A prompt-to-MP4 tool gives you something to download. Framino gives you
+        something to keep working on — with the same agent, or by hand, or both.
+      </p>
+      <div class="cta-row">
+        <a class="btn-lg" href="#install">Install Framino</a>
+        <a class="btn-lg outline" href="#case">Re-read the case</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="wrap foot">
+      <span>Framino — AI Video Production Studio</span>
+      <span>·</span>
+      <span>MIT, a fork of OpenFilm</span>
+      <span class="spacer"></span>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#case">Case</a>
+      <a href="#library">Library</a>
+      <a href="#install">Install</a>
+    </div>
+  </footer>
+
+</main>
+</body>
+</html>
