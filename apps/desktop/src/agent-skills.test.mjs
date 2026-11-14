@@ -173,6 +173,10 @@ test("Framino's own skill for terminal agents is known, never offered, and alway
   assert.equal(own.find((s) => s.name === 'research')?.ours, undefined, 'the person\'s own is not it');
   /* a copy installed before the rebrand still names OpenFilm in its description, and is the same skill */
   assert.equal(isOurs({ name: 'openfilm', description: 'Make videos as web pages with OpenFilm.' }), true);
+  /* the skill is named framino now; a copy installed under the old name is still the same skill */
+  assert.equal(isOurs({ name: 'framino', description: 'Make videos as web pages with Framino.' }), true);
+  assert.equal(isOurs({ name: 'framino', description: 'Make videos as web pages with OpenFilm.' }), true);
+  assert.equal(isOurs({ name: 'framino-edit', description: 'How a Framino film is made.' }), false, 'its manuals are not it');
   assert.equal(isOurs({ name: 'openfilm-edit', description: 'How a Framino film is made.' }), false, 'its manuals are not it');
   const s = await sessionSkills('claude', { cwd: w.project, home: w.home, dataDir: w.dataDir, mine: join(w.openfilmHome, 'skills'), allowed: ['openfilm', 'research'] });
   assert.equal(s.claude.settings.skillOverrides.openfilm, 'off', 'off even when it was let in');

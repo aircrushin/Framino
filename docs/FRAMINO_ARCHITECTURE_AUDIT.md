@@ -38,7 +38,7 @@ package.json                 root，private，packageManager pnpm@9.15.9，engin
 │   └── examples-index/      外部 openfilm/examples 仓库的只读镜像
 ├── packages/shared/         跨包共享类型（@openfilm/shared，private）
 ├── apps/desktop/            Electron 桌面 App + chat 前端（@openfilm/desktop，private）
-├── skills/openfilm/         给 coding agent 安装的入口 Skill
+├── skills/framino/         给 coding agent 安装的入口 Skill（手册与子 skill 都在它自己的文件夹里）
 └── docs/                    logo-light.svg / logo-dark.svg / openfilm.webp
 ```
 
@@ -70,7 +70,7 @@ package.json                 root，private，packageManager pnpm@9.15.9，engin
 2. **播放/渲染层** `src/timeline.mjs`（浏览器内播放）、`src/host.mjs`（Host 时钟）、`src/render.mjs`（成片渲染）。
 3. **服务层** `studio/server/*` —— 项目读写、媒体服务、导出队列、版本历史、Agent 协商、WebSocket 事件。
 4. **编辑器层** `studio/ui/*` —— React 工作台、时间线、Inspector、素材库、预览、导出 UI。
-5. **Agent 层** `skills/openfilm/SKILL.md` → `MANUAL.md` → `manual/*/SKILL.md` → `openfilm <command>` CLI。
+5. **Agent 层** `skills/framino/SKILL.md` → `manual.md` → `edit|media|canvas/SKILL.md` → `openfilm <command>` CLI。
 
 ---
 
@@ -90,7 +90,7 @@ package.json                 root，private，packageManager pnpm@9.15.9，engin
 | `studio/server/history*.mjs` | `.film/history` 独立 git 仓库；trailer `Openfilm-Version:` 是旧版本读取依据 |
 | `packages/openfilm/package.json` 的 `name` / `bin.openfilm` / `exports` / `files` / 钩子 | CLI 名、导出路径、npm 发布内容 |
 | `packages/openfilm/bin/openfilm.mjs` | 子命令名与参数；`asRun()` 依赖 |
-| `packages/openfilm/MANUAL.md` / `manual/*/SKILL.md` / `skills/openfilm/SKILL.md` | coding agent 的指令集，含大量 `openfilm …` 命令字面量 |
+| `packages/openfilm/MANUAL.md` / `manual/*/SKILL.md` / `skills/framino/SKILL.md` | coding agent 的指令集，含大量 `openfilm …` 命令字面量 |
 | `studio/client.mjs` | `health()` 校验 `product === 'openfilm-studio'`；`run.json` 字段；`keptNote()` |
 | `studio/server/server.mjs` | 全部 `/api/` 路由、WS 路径、cookie 名、`product` 标识、409/422 语义 |
 | `src/render.mjs` / `studio/server/exports.mjs` | 导出参数名、`kinds`、`VideoAsk`、`ExportJob.status/phase` |
@@ -251,7 +251,7 @@ window.film = {
 ### 5.1 三层 Skill
 
 ```
-skills/openfilm/SKILL.md        → "Run npx -y openfilm@latest and follow the manual it prints"
+skills/framino/SKILL.md         → "Read manual.md in this folder, then the skill the task needs"
 packages/openfilm/MANUAL.md     → 一页手册（CLI stdout 打印，asRun() 替换运行时命令前缀）
 manual/{edit,media,canvas}/SKILL.md → 三个核心技能正文 + openfilm.json（多语言标题/说明）
 ```

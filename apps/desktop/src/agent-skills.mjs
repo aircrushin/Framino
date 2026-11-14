@@ -98,12 +98,13 @@ async function skillFolders(dir, { except = [] } = {}) {
 }
 
 /**
- * Framino's own skill for agents in a terminal (the repository's skills/openfilm: "run `npx openfilm`, read the
- * manual"), installed in an agent: in the app it is never wanted, as the app tells the agent the same, and its `npx`
- * would contradict it. Never shown, never let in. A copy installed before the rebrand still says OpenFilm in its
- * description, and is the same skill, so both names count.
+ * Framino's own skill for agents in a terminal (the repository's skills/framino, which carries its manual and its
+ * skills in its own folder), installed in an agent: in the app it is never wanted, as the app tells the agent the
+ * same, and its `npx` would contradict it. Never shown, never let in. The skill was named `openfilm` before the
+ * rebrand, and a copy installed then is the same skill, so both names count.
  */
-export const isOurs = (skill) => skill.name === 'openfilm' && /\b(Framino|OpenFilm)\b/.test(skill.description ?? '');
+export const isOurs = (skill) => (skill.name === 'framino' || skill.name === 'openfilm')
+  && /\b(Framino|OpenFilm)\b/.test(skill.description ?? '');
 /** the folder and each above it, to the root */
 const upFrom = (cwd) => { const out = []; for (let up = resolve(cwd); ; up = dirname(up)) { out.push(up); if (up === dirname(up)) break; } return out; };
 const subdirs = (dir) => { try { return readdirSync(dir); } catch { return []; } };
