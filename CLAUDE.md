@@ -1,0 +1,2 @@
+@AGENTS.md
+@FRAMINO_CONTEXT.md
