@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Framino — AI Video Production Studio</title>
-<meta name="description" content="Your coding agent writes the film. You edit it in a real editor. One project on disk, no import step, no second copy that can drift.">
+<title data-i18n="meta.title">Framino — AI Video Production Studio</title>
+<meta name="description" data-i18n-attr="content:meta.description" content="Your coding agent writes the film. You edit it in a real editor. One project on disk, no import step, no second copy that can drift.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23181A19'/%3E%3Cg fill='none' stroke='%238BA58E' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M13 25V11a3 3 0 0 1 3-3h2'/%3E%3Cpath d='M10 16h8'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   /* ── tokens: the same values the Studio ships (docs/FRAMINO_DESIGN_SYSTEM.md) ───────────── */
@@ -29,6 +29,7 @@
     --track-text: #718ba5;
     --warn: #d2a66f;
     --font: Inter, "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif;
     --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     --r: 3px;
     --max: 1180px;
@@ -93,7 +94,57 @@
   }
   .primary:hover { background: var(--accent-active); }
 
-────────────────────────────────────────────────────────────────────────────────── */
+  /* ── language switch ────────────────────────────────────────────────────────────────────── */
+  .lang {
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--border); border-radius: var(--r);
+    overflow: hidden; height: 30px;
+  }
+  .lang button {
+    appearance: none; border: 0; background: transparent; cursor: pointer;
+    font-family: inherit; font-size: 12px; font-weight: 500; line-height: 1;
+    color: var(--muted); padding: 0 10px; height: 100%;
+    transition: color 90ms ease-out, background 90ms ease-out;
+  }
+  .lang button + button { border-left: 1px solid var(--border); }
+  .lang button:hover { color: var(--text); }
+  .lang button[aria-pressed="true"] { background: var(--selection); color: var(--accent-active); }
+  .lang button:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
+
+  /* ── Chinese typography: the design system's rules for CJK ──────────────────────────────── */
+  html[data-lang="zh"] body { font-family: var(--font-cjk); }
+  html[data-lang="zh"] h1,
+  html[data-lang="zh"] h2,
+  html[data-lang="zh"] h3 { letter-spacing: -0.01em; line-height: 1.22; }
+  html[data-lang="zh"] h1 { line-height: 1.16; }
+  /* `ch` is the width of a Latin zero; Chinese needs a wider measure or every heading breaks early */
+  html[data-lang="zh"] h1 { max-width: 15em; }
+  html[data-lang="zh"] .sec-head h2 { max-width: 22em; font-weight: 600; }
+  html[data-lang="zh"] .close h2 { max-width: 20em; }
+  html[data-lang="zh"] .case-top h3 { letter-spacing: 0; }
+  /* never uppercase Chinese: the label keeps its weight and colour, drops the transform */
+  html[data-lang="zh"] .label,
+  html[data-lang="zh"] .frame-bar .tag,
+  html[data-lang="zh"] .case-top .badge,
+  html[data-lang="zh"] .case-bottom h4,
+  html[data-lang="zh"] .term .h {
+    text-transform: none; letter-spacing: 0.06em; font-size: 11px;
+  }
+  html[data-lang="zh"] .lede { font-size: 16.5px; line-height: 1.78; }
+  html[data-lang="zh"] .sec-head .body p { line-height: 1.78; }
+  html[data-lang="zh"] .step .d { line-height: 1.6; }
+  html[data-lang="zh"] .caption { line-height: 1.7; }
+  html[data-lang="zh"] .shot .sub { line-height: 1.55; }
+  /* code, ids and numbers stay Latin and monospaced in both languages */
+  html[data-lang="zh"] code,
+  html[data-lang="zh"] pre,
+  html[data-lang="zh"] .num,
+  html[data-lang="zh"] .cmd,
+  html[data-lang="zh"] .fact .fv,
+  html[data-lang="zh"] .step .o,
+  html[data-lang="zh"] .shot .id { font-family: var(--mono); }
+
+  /* ── hero ────────────────────────────────────────────────────────────────────────────────── */
   .hero { padding: 92px 0 0; }
   .hero-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
   .eyebrow {
@@ -261,6 +312,7 @@
   .lib > div:nth-child(4n) { border-right: 1px solid var(--border); }
   .lib .n { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
   .lib .k { margin-top: 5px; font-size: 11px; color: var(--muted); }
+  html[data-lang="zh"] .lib .k { font-size: 11.5px; letter-spacing: 0; }
 
   /* ── export list ────────────────────────────────────────────────────────────────────────── */
   .exports { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
@@ -338,15 +390,19 @@
       <span>framino</span>
     </a>
     <nav>
-      <a href="#pipeline">Pipeline</a>
-      <a href="#case">Case</a>
-      <a href="#agent">Agent &amp; Studio</a>
-      <a href="#library">Library</a>
-      <a href="#install">Install</a>
+      <a href="#pipeline" data-i18n="nav.pipeline">Pipeline</a>
+      <a href="#case" data-i18n="nav.case">Case</a>
+      <a href="#agent" data-i18n="nav.agent">Agent &amp; Studio</a>
+      <a href="#library" data-i18n="nav.library">Library</a>
+      <a href="#install" data-i18n="nav.install">Install</a>
     </nav>
     <span class="spacer"></span>
-    <a class="ghost" href="#install">Docs</a>
-    <a class="primary" href="#install">Get started</a>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang-set="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang-set="zh" aria-pressed="false">中文</button>
+    </div>
+    <a class="ghost" href="#install" data-i18n="nav.docs">Docs</a>
+    <a class="primary" href="#install" data-i18n="nav.getStarted">Get started</a>
   </div>
 </header>
 
@@ -358,20 +414,20 @@
       <div class="hero-grid">
         <div class="eyebrow">
           <span class="dot"></span>
-          <span>AI Video Production Studio</span>
+          <span data-i18n="hero.kicker">AI Video Production Studio</span>
           <span class="sep"></span>
-          <span>Open source · MIT</span>
+          <span data-i18n="hero.license">Open source · MIT</span>
         </div>
-        <h1><span>Your agent writes the film.</span> <em>You keep the cut.</em></h1>
-        <p class="lede">
+        <h1><span data-i18n="hero.title1">Your agent writes the film.</span> <em data-i18n="hero.title2">You keep the cut.</em></h1>
+        <p class="lede" data-i18n="hero.lede">
           Framino is the workbench between your coding agent and the video models. The agent writes the script,
           the storyboard and the shots. You open a real editor and work on it like an editor does:
           trim, move, rewrite subtitles, set levels, export.
           <strong>One project on disk — no import step, no second copy that can drift.</strong>
         </p>
         <div class="cta-row">
-          <a class="btn-lg" href="#install">Install Framino</a>
-          <a class="btn-lg outline" href="#case">See a real project</a>
+          <a class="btn-lg" href="#install" data-i18n="cta.install">Install Framino</a>
+          <a class="btn-lg outline" href="#case" data-i18n="cta.seeCase">See a real project</a>
           <span class="cmd"><span class="p">$</span> corepack pnpm dev</span>
         </div>
       </div>
@@ -380,14 +436,15 @@
         <div class="frame-bar">
           <span class="dots"><i></i><i></i><i></i></span>
           <span class="path">framino studio — the-long-summer</span>
-          <span class="tag">Real screenshot</span>
+          <span class="tag" data-i18n="shot.tag">Real screenshot</span>
         </div>
         <img src="assets/studio-hero.webp" width="3200" height="2000"
+             data-i18n-attr="alt:alt.hero"
              alt="Framino Studio editing a four-shot film: media library on the left, preview monitor with a rain-soaked night street and a burned-in subtitle, inspector on the right, and a three-track timeline with four video clips, a caption track and a music bed.">
       </figure>
       <p class="caption">
-        <b>Not a mockup.</b>
-        <span>Framino Studio, opened on the project built below — 4 shots, 3 tracks, 5 clips, 7.1 s, revision <code>ce0204c6b9</code>.</span>
+        <b data-i18n="hero.capB">Not a mockup.</b>
+        <span data-i18n="hero.capT">Framino Studio, opened on the project built below — 4 shots, 3 tracks, 5 clips, 7.1 s, revision <code>ce0204c6b9</code>.</span>
       </p>
     </div>
   </div>
@@ -397,19 +454,19 @@
     <div class="specs">
       <div class="spec">
         <div class="n">53<small>/53</small></div>
-        <div class="k">tests passing in the production package</div>
+        <div class="k" data-i18n="spec.tests">tests passing in the production package</div>
       </div>
       <div class="spec">
-        <div class="n">8<small>steps</small></div>
-        <div class="k">idea to exported MP4, with a human gate</div>
+        <div class="n">8<small data-i18n="spec.stepsUnit">steps</small></div>
+        <div class="k" data-i18n="spec.steps">idea to exported MP4, with a human gate</div>
       </div>
       <div class="spec">
-        <div class="n">0<small>cloud</small></div>
-        <div class="k">projects, accounts or credits in the middle</div>
+        <div class="n">0<small data-i18n="spec.cloudUnit">cloud</small></div>
+        <div class="k" data-i18n="spec.cloud">projects, accounts or credits in the middle</div>
       </div>
       <div class="spec">
-        <div class="n">1<small>folder</small></div>
-        <div class="k">the agent and the editor read the same files</div>
+        <div class="n">1<small data-i18n="spec.folderUnit">folder</small></div>
+        <div class="k" data-i18n="spec.folder">the agent and the editor read the same files</div>
       </div>
     </div>
   </div>
@@ -418,15 +475,15 @@
   <section id="pipeline">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label">The pipeline</div>
+        <div class="label" data-i18n="pipe.label">The pipeline</div>
         <div class="body">
-          <h2>Others stop at the download. Framino hands you the project.</h2>
-          <p>
+          <h2 data-i18n="pipe.title">Others stop at the download. Framino hands you the project.</h2>
+          <p data-i18n="pipe.p1">
             The agent captures the brief, writes the script, designs the storyboard, calls the video model shot by
             shot, lands and validates the media, then assembles a project. You approve before anything is generated,
             and you edit after.
           </p>
-          <p>
+          <p data-i18n="pipe.p2">
             Every step writes to a manifest that doubles as a ledger. A task is recorded before the call, a task left
             running is resolved against the disk instead of being resubmitted, and every retry is a new take with a
             new file name — so nothing is overwritten and nobody pays twice.
@@ -435,14 +492,14 @@
       </div>
 
       <div class="pipe">
-        <div class="step"><span class="i">01</span><span class="t">Idea</span><span class="d">Topic, audience, length, aspect ratio, style, platform, language, budget limits.</span><span class="o">manifest.brief</span></div>
-        <div class="step"><span class="i">02</span><span class="t">Script</span><span class="d">Hook, scenes, voice-over, dialogue, subtitles, ending, pacing.</span><span class="o">production/script.md</span></div>
-        <div class="step"><span class="i">03</span><span class="t">Storyboard</span><span class="d">One structured entry per shot: framing, movement, lighting, prompt, voice-over, subtitle.</span><span class="o">manifest.shots[]</span></div>
-        <div class="step gate"><span class="i">04</span><span class="t">Your approval</span><span class="d">Script and storyboard are approved by a person before a single second is generated.</span><span class="o">manifest.approval</span></div>
-        <div class="step"><span class="i">05</span><span class="t">Generation</span><span class="d">One call per shot through the service you connected. You confirm the spend. Regenerating one shot touches no other.</span><span class="o">manifest.tasks[]</span></div>
-        <div class="step"><span class="i">06</span><span class="t">Asset pipeline</span><span class="d">Probe duration, resolution, fps and codecs. A file that does not decode never enters the project.</span><span class="o">manifest.assets[]</span></div>
-        <div class="step"><span class="i">07</span><span class="t">Assembly</span><span class="d">Each shot its own clip, separate audio tracks, captions on their own track, every shot replaceable.</span><span class="o">film.html</span></div>
-        <div class="step"><span class="i">08</span><span class="t">Edit &amp; export</span><span class="d">You work in Studio. Edits are written to disk as you make them, so the agent sees them and keeps them.</span><span class="o">MP4 · NLE · stills</span></div>
+        <div class="step"><span class="i">01</span><span class="t" data-i18n="step1.t">Idea</span><span class="d" data-i18n="step1.d">Topic, audience, length, aspect ratio, style, platform, language, budget limits.</span><span class="o">manifest.brief</span></div>
+        <div class="step"><span class="i">02</span><span class="t" data-i18n="step2.t">Script</span><span class="d" data-i18n="step2.d">Hook, scenes, voice-over, dialogue, subtitles, ending, pacing.</span><span class="o">production/script.md</span></div>
+        <div class="step"><span class="i">03</span><span class="t" data-i18n="step3.t">Storyboard</span><span class="d" data-i18n="step3.d">One structured entry per shot: framing, movement, lighting, prompt, voice-over, subtitle.</span><span class="o">manifest.shots[]</span></div>
+        <div class="step gate"><span class="i">04</span><span class="t" data-i18n="step4.t">Your approval</span><span class="d" data-i18n="step4.d">Script and storyboard are approved by a person before a single second is generated.</span><span class="o">manifest.approval</span></div>
+        <div class="step"><span class="i">05</span><span class="t" data-i18n="step5.t">Generation</span><span class="d" data-i18n="step5.d">One call per shot through the service you connected. You confirm the spend. Regenerating one shot touches no other.</span><span class="o">manifest.tasks[]</span></div>
+        <div class="step"><span class="i">06</span><span class="t" data-i18n="step6.t">Asset pipeline</span><span class="d" data-i18n="step6.d">Probe duration, resolution, fps and codecs. A file that does not decode never enters the project.</span><span class="o">manifest.assets[]</span></div>
+        <div class="step"><span class="i">07</span><span class="t" data-i18n="step7.t">Assembly</span><span class="d" data-i18n="step7.d">Each shot its own clip, separate audio tracks, captions on their own track, every shot replaceable.</span><span class="o">film.html</span></div>
+        <div class="step"><span class="i">08</span><span class="t" data-i18n="step8.t">Edit &amp; export</span><span class="d" data-i18n="step8.d">You work in Studio. Edits are written to disk as you make them, so the agent sees them and keeps them.</span><span class="o">MP4 · NLE · stills</span></div>
       </div>
     </div>
   </section>
@@ -453,10 +510,10 @@
   <section id="case">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label">A real project</div>
+        <div class="label" data-i18n="case.label">A real project</div>
         <div class="body">
-          <h2>The Long Summer — a title sequence, assembled by the adapter.</h2>
-          <p>
+          <h2 data-i18n="case.title">The Long Summer — a title sequence, assembled by the adapter.</h2>
+          <p data-i18n="case.p">
             Four shots, two scenes, a caption track and a music bed. The manifest below was written by hand and
             assembled by the real <code>assemble()</code> in <code>packages/framino-production/src/adapter.mjs</code>
             — the same code path the tests exercise. The footage is cut from the <code>cinema-open</code> film that
@@ -468,49 +525,49 @@
 
       <div class="case">
         <div class="case-top">
-          <h3>The Long Summer</h3>
+          <h3 data-i18n="case.name">The Long Summer</h3>
           <span class="meta">project_id: the-long-summer · 1920×1080 · 30 fps · 7.1 s</span>
-          <span class="badge">Assembled, not mocked</span>
+          <span class="badge" data-i18n="case.badge">Assembled, not mocked</span>
         </div>
 
         <div class="shots">
           <div class="shot">
-            <div class="img"><img src="assets/frame-sh01.jpg" width="480" height="270" alt="A woman with an umbrella crossing a rain-soaked street at night, shop windows and a red traffic light reflected in the wet asphalt."></div>
+            <div class="img"><img src="assets/frame-sh01.jpg" width="480" height="270" data-i18n-attr="alt:alt.sh01" alt="A woman with an umbrella crossing a rain-soaked street at night, shop windows and a red traffic light reflected in the wet asphalt."></div>
             <div class="info">
               <div class="id"><span>sh01 · sc01</span><span class="dur">1.7 s</span></div>
-              <div class="sub">She left on a Tuesday, in the rain.</div>
-              <div class="vo">slow lateral tracking</div>
+              <div class="sub" data-i18n="sh01.sub">She left on a Tuesday, in the rain.</div>
+              <div class="vo" data-i18n="sh01.vo">slow lateral tracking</div>
             </div>
           </div>
           <div class="shot">
-            <div class="img"><img src="assets/frame-sh02.jpg" width="480" height="270" alt="A train window at dusk: a reflection in the glass with a green valley passing outside."></div>
+            <div class="img"><img src="assets/frame-sh02.jpg" width="480" height="270" data-i18n-attr="alt:alt.sh02" alt="A train window at dusk: a reflection in the glass with a green valley passing outside."></div>
             <div class="info">
               <div class="id"><span>sh02 · sc01</span><span class="dur">1.2 s</span></div>
-              <div class="sub">The city kept its weather.</div>
-              <div class="vo">locked off, reflection drift</div>
+              <div class="sub" data-i18n="sh02.sub">The city kept its weather.</div>
+              <div class="vo" data-i18n="sh02.vo">locked off, reflection drift</div>
             </div>
           </div>
           <div class="shot">
-            <div class="img"><img src="assets/frame-sh03.jpg" width="480" height="270" alt="A fog-covered mountain road at first light, with a single car climbing and the sun breaking through the mist."></div>
+            <div class="img"><img src="assets/frame-sh03.jpg" width="480" height="270" data-i18n-attr="alt:alt.sh03" alt="A fog-covered mountain road at first light, with a single car climbing and the sun breaking through the mist."></div>
             <div class="info">
               <div class="id"><span>sh03 · sc02</span><span class="dur">2.6 s</span></div>
-              <div class="sub">The mountains kept theirs.</div>
-              <div class="vo">slow push in</div>
+              <div class="sub" data-i18n="sh03.sub">The mountains kept theirs.</div>
+              <div class="vo" data-i18n="sh03.vo">slow push in</div>
             </div>
           </div>
           <div class="shot">
-            <div class="img"><img src="assets/frame-sh04.jpg" width="480" height="270" alt="A letterboxed title card over the fogged mountain road."></div>
+            <div class="img"><img src="assets/frame-sh04.jpg" width="480" height="270" data-i18n-attr="alt:alt.sh04" alt="A letterboxed title card over the fogged mountain road."></div>
             <div class="info">
               <div class="id"><span>sh04 · sc02</span><span class="dur">1.6 s</span></div>
-              <div class="sub">The Long Summer</div>
-              <div class="vo">locked off</div>
+              <div class="sub" data-i18n="sh04.sub">The Long Summer</div>
+              <div class="vo" data-i18n="sh04.vo">locked off</div>
             </div>
           </div>
         </div>
 
         <div class="case-bottom">
           <div>
-            <h4>What the adapter wrote — film.html</h4>
+            <h4 data-i18n="case.codeH">What the adapter wrote — film.html</h4>
             <pre><span class="c">&lt;!-- one section per track, top layer first --&gt;</span>
 &lt;<span class="k">section</span> <span class="a">data-framino-track</span>=<span class="s">"captions"</span>&gt;
   &lt;<span class="k">track</span> <span class="a">kind</span>=<span class="s">"captions"</span> <span class="a">src</span>=<span class="s">"captions/film.vtt"</span>
@@ -529,18 +586,18 @@
 &lt;/<span class="k">section</span>&gt;</pre>
           </div>
           <div>
-            <h4>What the run reported</h4>
+            <h4 data-i18n="case.factsH">What the run reported</h4>
             <div class="facts">
               <div class="fact"><span class="fk">film_rev</span><span class="fv">ce0204c6b9…</span></div>
-              <div class="fact"><span class="fk">shots placed</span><span class="fv">sh01 sh02 sh03 sh04</span></div>
-              <div class="fact"><span class="fk">shots skipped</span><span class="fv">none</span></div>
-              <div class="fact"><span class="fk">tracks</span><span class="fv">captions, video, music</span></div>
-              <div class="fact"><span class="fk">caption cues</span><span class="fv">4</span></div>
-              <div class="fact"><span class="fk">asset origin</span><span class="fv">library ×5</span></div>
-              <div class="fact"><span class="fk">test fixtures</span><span class="fv">0</span></div>
-              <div class="fact"><span class="fk">assembled twice</span><span class="fv">byte-identical</span></div>
+              <div class="fact"><span class="fk" data-i18n="fact.placed">shots placed</span><span class="fv">sh01 sh02 sh03 sh04</span></div>
+              <div class="fact"><span class="fk" data-i18n="fact.skipped">shots skipped</span><span class="fv" data-i18n="fact.none">none</span></div>
+              <div class="fact"><span class="fk" data-i18n="fact.tracks">tracks</span><span class="fv" data-i18n="fact.tracksV">captions, video, music</span></div>
+              <div class="fact"><span class="fk" data-i18n="fact.cues">caption cues</span><span class="fv">4</span></div>
+              <div class="fact"><span class="fk" data-i18n="fact.origin">asset origin</span><span class="fv" data-i18n="fact.originV">library ×5</span></div>
+              <div class="fact"><span class="fk" data-i18n="fact.fixtures">test fixtures</span><span class="fv">0</span></div>
+              <div class="fact"><span class="fk" data-i18n="fact.twice">assembled twice</span><span class="fv" data-i18n="fact.twiceV">byte-identical</span></div>
             </div>
-            <p style="margin-top:16px;font-size:12px;color:var(--muted);line-height:1.6">
+            <p style="margin-top:16px;font-size:12px;color:var(--muted);line-height:1.6" data-i18n="case.fixedPoint">
               Assembling is a fixed point: the second run writes nothing, because the text it would write is the text
               already on disk. That is what makes it safe to re-run after an agent edit.
             </p>
@@ -556,14 +613,14 @@
   <section id="agent">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label">Agent &amp; Studio</div>
+        <div class="label" data-i18n="agent.label">Agent &amp; Studio</div>
         <div class="body">
-          <h2>Two modes, one file. A change made by one is the state the other reads.</h2>
-          <p>
+          <h2 data-i18n="agent.title">Two modes, one file. A change made by one is the state the other reads.</h2>
+          <p data-i18n="agent.p1">
             <strong>Agent mode</strong> — your coding agent creates and changes the project.<br>
             <strong>Studio mode</strong> — you review and edit by hand.
           </p>
-          <p>
+          <p data-i18n="agent.p2">
             The Agent panel shows the project's real state — tracks, clips and revision read from disk — and the real
             event stream: film writes, exports, files, canvas, history. It does not pretend a conversation happened.
             In the browser Studio there is no chat of its own, and the panel says exactly that: an instruction
@@ -575,27 +632,29 @@
       <figure class="frame" style="margin-top:48px">
         <div class="frame-bar">
           <span class="dots"><i></i><i></i><i></i></span>
-          <span class="path">agent panel — project state read from disk</span>
+          <span class="path" data-i18n="agent.path1">agent panel — project state read from disk</span>
         </div>
         <img src="assets/studio-agent.webp" width="3200" height="2000"
+             data-i18n-attr="alt:alt.agent"
              alt="The Framino Agent panel open beside the editor, showing project context read from disk: 1920 by 1080 stage, 3 tracks, 5 clips, revision ce0204c6b9, an honest connection notice, and example instructions.">
       </figure>
       <p class="caption">
-        <b>Every number in that panel comes from the file.</b>
-        <span>1920 × 1080 · 3 tracks · 5 clips · revision <code>ce0204c6b9</code> — read from <code>film.html</code>, not typed into a component.</span>
+        <b data-i18n="agent.cap1B">Every number in that panel comes from the file.</b>
+        <span data-i18n="agent.cap1T">1920 × 1080 · 3 tracks · 5 clips · revision <code>ce0204c6b9</code> — read from <code>film.html</code>, not typed into a component.</span>
       </p>
 
       <figure class="frame" style="margin-top:32px">
         <div class="frame-bar">
           <span class="dots"><i></i><i></i><i></i></span>
-          <span class="path">timeline — four shots, four captions, one music bed</span>
+          <span class="path" data-i18n="agent.path2">timeline — four shots, four captions, one music bed</span>
         </div>
         <img src="assets/studio-timeline.webp" width="2350" height="476"
+             data-i18n-attr="alt:alt.timeline"
              alt="Timeline detail: a caption track with four subtitle clips, a video track with four clips each carrying its shot id and duration, and a music bed on an audio track.">
       </figure>
       <p class="caption">
-        <b>Caption cues are generated from the shots, not typed twice.</b>
-        <span>Each cue takes its shot id and lands on the film second its picture really starts at.</span>
+        <b data-i18n="agent.cap2B">Caption cues are generated from the shots, not typed twice.</b>
+        <span data-i18n="agent.cap2T">Each cue takes its shot id and lands on the film second its picture really starts at.</span>
       </p>
     </div>
   </section>
@@ -606,10 +665,10 @@
   <section id="library">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label">The library</div>
+        <div class="label" data-i18n="lib.label">The library</div>
         <div class="body">
-          <h2>Everything in the timeline is a file you already have.</h2>
-          <p>
+          <h2 data-i18n="lib.title">Everything in the timeline is a file you already have.</h2>
+          <p data-i18n="lib.p">
             A film is a folder with a <code>film.html</code>: tracks of clips cut together, styled with CSS. The agent
             already knows the web, so nothing new has to be learned — and nothing is locked behind a service.
             Counted from <code>packages/openfilm/library/</code> in this repository.
@@ -618,23 +677,23 @@
       </div>
 
       <div class="lib">
-        <div><div class="n">78</div><div class="k">text styles</div></div>
-        <div><div class="n">71</div><div class="k">effects</div></div>
-        <div><div class="n">64</div><div class="k">motion presets</div></div>
-        <div><div class="n">61</div><div class="k">transitions</div></div>
-        <div><div class="n">56</div><div class="k">stickers</div></div>
-        <div><div class="n">20</div><div class="k">sound effects</div></div>
-        <div><div class="n">14</div><div class="k">templates</div></div>
-        <div><div class="n">2</div><div class="k">colour filters</div></div>
+        <div><div class="n">78</div><div class="k" data-i18n="lib.text">text styles</div></div>
+        <div><div class="n">71</div><div class="k" data-i18n="lib.effects">effects</div></div>
+        <div><div class="n">64</div><div class="k" data-i18n="lib.motions">motion presets</div></div>
+        <div><div class="n">61</div><div class="k" data-i18n="lib.transitions">transitions</div></div>
+        <div><div class="n">56</div><div class="k" data-i18n="lib.stickers">stickers</div></div>
+        <div><div class="n">20</div><div class="k" data-i18n="lib.sounds">sound effects</div></div>
+        <div><div class="n">14</div><div class="k" data-i18n="lib.templates">templates</div></div>
+        <div><div class="n">2</div><div class="k" data-i18n="lib.filters">colour filters</div></div>
       </div>
 
       <div class="exports">
         <span class="chip">MP4</span>
         <span class="chip">GIF</span>
-        <span class="chip">Audio / stems</span>
-        <span class="chip">Subtitles</span>
-        <span class="chip">Stills</span>
-        <span class="chip">Transparent video</span>
+        <span class="chip" data-i18n="exp.audio">Audio / stems</span>
+        <span class="chip" data-i18n="exp.subtitles">Subtitles</span>
+        <span class="chip" data-i18n="exp.stills">Stills</span>
+        <span class="chip" data-i18n="exp.alpha">Transparent video</span>
         <span class="chip">Final Cut Pro</span>
         <span class="chip">Premiere Pro</span>
         <span class="chip">DaVinci Resolve</span>
@@ -648,10 +707,10 @@
   <section id="install">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label">Install</div>
+        <div class="label" data-i18n="install.label">Install</div>
         <div class="body">
-          <h2>Node 22.18+, pnpm 9, git. ffmpeg for rendering.</h2>
-          <p>
+          <h2 data-i18n="install.title">Node 22.18+, pnpm 9, git. ffmpeg for rendering.</h2>
+          <p data-i18n="install.p">
             The first render downloads a headless Chromium, about 100 MB — the same engine the preview draws with, so
             what you see is what you export.
           </p>
@@ -660,20 +719,20 @@
 
       <div class="install">
         <div class="term">
-          <div class="h">From source</div>
+          <div class="h" data-i18n="install.h1">From source</div>
           <pre><span class="p">$</span> git clone https://github.com/aircrushin/Framino
 <span class="p">$</span> cd Framino
 <span class="p">$</span> corepack enable
 <span class="p">$</span> pnpm install
-<span class="p">$</span> pnpm dev            <span class="cm"># Studio on 127.0.0.1:4848</span></pre>
+<span class="p">$</span> pnpm dev            <span class="cm" data-i18n="install.c1"># Studio on 127.0.0.1:4848</span></pre>
         </div>
         <div class="term">
-          <div class="h">Drive it from your agent</div>
-          <pre><span class="p">$</span> openfilm open "/path/to/project"  <span class="cm"># Studio opens on it</span>
-<span class="p">$</span> openfilm look                    <span class="cm"># check the film</span>
-<span class="p">$</span> openfilm render                  <span class="cm"># the MP4</span>
-<span class="p">$</span> openfilm get video               <span class="cm"># media, shot by shot</span>
-<span class="p">$</span> openfilm skills                  <span class="cm"># what a film is made with</span></pre>
+          <div class="h" data-i18n="install.h2">Drive it from your agent</div>
+          <pre><span class="p">$</span> openfilm open "/path/to/project"  <span class="cm" data-i18n="install.c2"># Studio opens on it</span>
+<span class="p">$</span> openfilm look                    <span class="cm" data-i18n="install.c3"># check the film</span>
+<span class="p">$</span> openfilm render                  <span class="cm" data-i18n="install.c4"># the MP4</span>
+<span class="p">$</span> openfilm get video               <span class="cm" data-i18n="install.c5"># media, shot by shot</span>
+<span class="p">$</span> openfilm skills                  <span class="cm" data-i18n="install.c6"># what a film is made with</span></pre>
         </div>
       </div>
     </div>
@@ -682,31 +741,90 @@
   <!-- ── closing ──────────────────────────────────────────────────────────────────────────── -->
   <div class="close">
     <div class="wrap">
-      <h2>The AI makes an editable project, not a file.</h2>
-      <p>
+      <h2 data-i18n="close.title">The AI makes an editable project, not a file.</h2>
+      <p data-i18n="close.p">
         That is the whole difference. A prompt-to-MP4 tool gives you something to download. Framino gives you
         something to keep working on — with the same agent, or by hand, or both.
       </p>
       <div class="cta-row">
-        <a class="btn-lg" href="#install">Install Framino</a>
-        <a class="btn-lg outline" href="#case">Re-read the case</a>
+        <a class="btn-lg" href="#install" data-i18n="cta.install">Install Framino</a>
+        <a class="btn-lg outline" href="#case" data-i18n="close.cta2">Re-read the case</a>
       </div>
     </div>
   </div>
 
   <footer>
     <div class="wrap foot">
-      <span>Framino — AI Video Production Studio</span>
+      <span data-i18n="foot.name">Framino — AI Video Production Studio</span>
       <span>·</span>
-      <span>MIT, a fork of OpenFilm</span>
+      <span data-i18n="foot.license">MIT, a fork of OpenFilm</span>
       <span class="spacer"></span>
-      <a href="#pipeline">Pipeline</a>
-      <a href="#case">Case</a>
-      <a href="#library">Library</a>
-      <a href="#install">Install</a>
+      <a href="#pipeline" data-i18n="nav.pipeline">Pipeline</a>
+      <a href="#case" data-i18n="nav.case">Case</a>
+      <a href="#library" data-i18n="nav.library">Library</a>
+      <a href="#install" data-i18n="nav.install">Install</a>
     </div>
   </footer>
 
 </main>
+<script type="module">
+/* ── i18n: the dictionaries live in i18n/, one file per language, keyed identically. ── */
+const DICTS = {};
+async function loadDict(lang) {
+  if (!DICTS[lang]) DICTS[lang] = (await import(`./i18n/${lang}.js`)).default;
+  return DICTS[lang];
+}
+
+const STORAGE_KEY = 'framino.landing.lang';
+const SUPPORTED = ['en', 'zh'];
+
+/** The language to start in: a saved choice, else the browser's, else English. */
+function initialLang() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && SUPPORTED.includes(saved)) return saved;
+  } catch { /* storage can be blocked; the page still works */ }
+  const nav = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+  for (const tag of nav) {
+    const low = String(tag).toLowerCase();
+    if (low.startsWith('zh')) return 'zh';
+    if (low.startsWith('en')) return 'en';
+  }
+  return 'en';
+}
+
+/**
+ * Apply a language: every [data-i18n] gets its string, every [data-i18n-attr] gets its attribute
+ * ("attr:key", comma separated for several). Text is set as HTML so a translation may carry <strong> or <code>.
+ */
+async function applyLang(lang) {
+  const dict = await loadDict(lang).catch(() => null);
+  if (!dict) return;                       // a missing dictionary leaves the markup's own English in place
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  document.documentElement.dataset.lang = lang;
+
+  for (const el of document.querySelectorAll('[data-i18n]')) {
+    const value = dict[el.dataset.i18n];
+    if (value !== undefined) el.innerHTML = value;
+  }
+  for (const el of document.querySelectorAll('[data-i18n-attr]')) {
+    for (const pair of el.dataset.i18nAttr.split(',')) {
+      const [attr, key] = pair.split(':').map((s) => s.trim());
+      const value = dict[key];
+      if (attr && value !== undefined) el.setAttribute(attr, value);
+    }
+  }
+  for (const btn of document.querySelectorAll('[data-lang-set]')) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.langSet === lang));
+  }
+  try { localStorage.setItem(STORAGE_KEY, lang); } catch { /* ignore */ }
+}
+
+await applyLang(initialLang());
+
+for (const btn of document.querySelectorAll('[data-lang-set]')) {
+  btn.addEventListener('click', () => { void applyLang(btn.dataset.langSet); });
+}
+</script>
 </body>
 </html>
