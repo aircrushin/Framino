@@ -150,7 +150,7 @@ export const VERBS = /** @type {Record<string, VerbSpec>} */ ({
 export const WEB_VERBS = ['web-search', 'web-fetch'];
 
 /** Where the person connects a service and picks its models, said the same way everywhere. */
-export const WHERE_TO_CONNECT = 'In Studio, the OpenFilm logo at the top left opens Settings: under Services the person chooses the model '
+export const WHERE_TO_CONNECT = 'In Studio, the Framino logo at the top left opens Settings: under Services the person chooses the model '
   + 'for each kind of media, and connects its service there (signing in, or with their own key).';
 /** The services that make `verb`, by name: "fal.ai, Google or OpenAI". @param {string} verb */
 const makers = (verb) => {
@@ -164,12 +164,12 @@ const notConnected = (verbs) => `Not connected here: ${verbs.map((v) => `${v} ($
 const offered = (/** @type {string} */ verb) => listProviders().some((p) => /** @type {readonly string[]} */ (p.verbs).includes(verb));
 /** The whole of `openfilm get` when nothing is connected. */
 const nothing = () => 'Nothing is connected for media here: each kind works only once the person connects a service that makes it (below). '
-  + 'Until then, take what OpenFilm\'s own library has (its verbs are free and need nothing connected), make sound and pictures in code, '
+  + 'Until then, take what Framino\'s own library has (its verbs are free and need nothing connected), make sound and pictures in code, '
   + 'or use a service the person has a key for (with its API docs), and save them under assets/. '
   + `\`openfilm get <what> --help\` shows what one kind takes (${Object.keys(VERBS).filter((v) => !WEB_VERBS.includes(v) && offered(v)).join(', ')}).`;
 
 /** What `call` says when the person has added no service of their own. */
-const NO_OWN_SERVICES = 'The person has added no services of their own. In Studio, the OpenFilm logo at the top left opens Settings: '
+const NO_OWN_SERVICES = 'The person has added no services of their own. In Studio, the Framino logo at the top left opens Settings: '
   + 'they add one under Services (its address, its key if it takes one, and what it does).';
 
 /** Each kind of media, in words (finding voices is part of voice-over). */

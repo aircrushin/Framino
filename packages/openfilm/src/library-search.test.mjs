@@ -91,9 +91,9 @@ test('nothing that fits is nothing found, and said so', async () => {
   const said = await libraryGet('music-search', { prompt: 'qwzxv' });
   assert.equal(said.code, 0);
   /* a vector is near something whatever is asked: then the nearest are given as such */
-  if (semantic) assert.match(said.lines[0], /^No words of “qwzxv” are in OpenFilm's library; the 8 nearest in meaning, which may not fit:$/);
+  if (semantic) assert.match(said.lines[0], /^No words of “qwzxv” are in Framino's library; the 8 nearest in meaning, which may not fit:$/);
   else {
-    assert.match(said.lines[0], /^Nothing in OpenFilm's library for “qwzxv”: make one with `openfilm get music`\.$/);
+    assert.match(said.lines[0], /^Nothing in Framino's library for “qwzxv”: make one with `openfilm get music`\.$/);
     assert.match((await libraryGet('transition', { prompt: 'qwzxv' })).lines[0], /write it yourself/);
   }
 });
@@ -129,7 +129,7 @@ test('a search prints each match\'s id to take, what it is like and where to see
   const { code, lines } = await libraryGet('transition', { prompt: 'glitch', limit: '3' });
   const text = lines.join('\n');
   assert.equal(code, 0);
-  assert.match(text, /^3 in OpenFilm's library for “glitch”, the best first/);
+  assert.match(text, /^3 in Framino's library for “glitch”, the best first/);
   assert.match(text, /^ {4}openfilm\/transitions\/glitch$/m);
   assert.match(text, /over a cut/);
   assert.match(text, /see it: .*transitions[\\/]glitch[\\/]preview\.mp4/);

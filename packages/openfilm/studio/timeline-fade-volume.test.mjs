@@ -145,7 +145,7 @@ test('the clip under the pointer, and it alone, has a fade dot just inside each 
     await page.mouse.up();
     await until(async () => (await clipOf('clip'))?.volume < 1, 'the volume is written');
     assert.equal(Number(await line.getAttribute('data-volume-line')), (await clipOf('clip')).volume);
-    await page.locator('button[aria-label^="Undo"]').click();
+    await page.locator('[data-timeline] button[aria-label^="Undo"]').click();
     await until(async () => (await clipOf('clip'))?.volume == null || (await clipOf('clip')).volume === 1, 'Undo puts it back');
     assert.ok((clipFade(await clipOf('clip'))?.[0] ?? 0) > 0, 'the fade stays');
 
@@ -205,7 +205,7 @@ test('the clip under the pointer, and it alone, has a fade dot just inside each 
     await until(async () => (await clipOf('tune'))?.volume > 3, 'the volume is written');
     const loud = await drawn();
     assert.ok(Math.abs(loud.peak - loud.band) <= 0.5 && loud.warm > 0, `+12 dB: capped at the top, the clipped part tinted (${JSON.stringify(loud)})`);
-    await page.locator('button[aria-label^="Undo"]').click();
+    await page.locator('[data-timeline] button[aria-label^="Undo"]').click();
     await until(async () => (await clipOf('tune'))?.volume == null, 'Undo puts it back');
     await hover();
     await until(async () => Math.abs((await drawn()).peak - asIs.peak) <= 0.5, 'drawn as it was');

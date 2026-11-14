@@ -443,7 +443,7 @@ test('openfilm get: what can be got here, connected, partly or not at all; wrong
   const free = libraryVerbs();
   const lines = (list, width) => list.flatMap((v) => [`  ${v.verb.padEnd(width)}  ${v.help}${v.dir ? ` Saved under ${v.dir}/.` : ''}`,
     `${' '.repeat(width + 4)}${Object.entries(v.options).map(([n, o]) => flagHelp(n, o)).join(' ')}`]);
-  const library = (width) => ['Free, offline, from OpenFilm\'s own library (CC0): search it first, and make only what it does not have.', ...lines(free, width), ''];
+  const library = (width) => ['Free, offline, from Framino\'s own library (CC0): search it first, and make only what it does not have.', ...lines(free, width), ''];
   const listing = (verbs, { one = false } = {}) => {
     const width = Math.max(...[...(one ? [] : free.map((v) => v.verb)), ...verbs].map((v) => v.length));
     return [
@@ -480,10 +480,10 @@ test('openfilm get: what can be got here, connected, partly or not at all; wrong
     assert.equal(nothing.status, 0, nothing.stderr);
     assert.equal(nothing.stdout, `${library(Math.max(...free.map((v) => v.verb.length))).join('\n')}\n`
       + 'Nothing is connected for media here: each kind works only once the person connects a service that makes it (below). '
-      + 'Until then, take what OpenFilm\'s own library has (its verbs are free and need nothing connected), make sound and pictures in code, '
+      + 'Until then, take what Framino\'s own library has (its verbs are free and need nothing connected), make sound and pictures in code, '
       + 'or use a service the person has a key for (with its API docs), and save them under assets/. '
       + `\`openfilm get <what> --help\` shows what one kind takes (${media.join(', ')}).\n\n${services()}\n`);
-    assert.match(services(), /^Media services, each used with the person's own key: Brave Search \(web search\), Cartesia \(voice-over\), Doubao \(transcripts\), ElevenLabs \(voice-over, sound effects, music, transcripts\), fal\.ai \(images, video, music, sound effects\), .*, Microsoft Azure \(voice-over\), .*, Tavily \(web search\), Xiaomi MiMo \(voice-over, transcripts\)\. In Studio, the OpenFilm logo at the top left opens Settings/);
+    assert.match(services(), /^Media services, each used with the person's own key: Brave Search \(web search\), Cartesia \(voice-over\), Doubao \(transcripts\), ElevenLabs \(voice-over, sound effects, music, transcripts\), fal\.ai \(images, video, music, sound effects\), .*, Microsoft Azure \(voice-over\), .*, Tavily \(web search\), Xiaomi MiMo \(voice-over, transcripts\)\. In Studio, the Framino logo at the top left opens Settings/);
 
     /* partly: what is connected, then one line for the rest with the services that make each, then the services there
        are; never who makes what is connected */

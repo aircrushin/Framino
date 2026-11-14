@@ -16,7 +16,17 @@ function initialProfiles() {
     if (localStorage.getItem(FRAMINO_FIRST_RUN_KEY)) return saved;
     localStorage.setItem(FRAMINO_FIRST_RUN_KEY, '1');
   } catch { return saved; }
-  const edit = readWorkspaceLayout({ ...saved.edit, assets: true, layers: false, chat: false, libraryDock: 'left', assetsWidth: 248, inspectorWidth: 300 });
+  /* Fill in the studio's arrangement, but never overrule a choice the person already made: a hidden Layers panel
+     stays hidden, a worked-through width stays as it is (the legacy keys are the only record of those choices here). */
+  const legacy = (key: string) => { try { return localStorage.getItem(`openfilm.project.${key}`); } catch { return null; } };
+  const first = saved.edit;
+  const edit = readWorkspaceLayout({
+    ...first,
+    assets: legacy('assets') === null ? true : first.assets,
+    libraryDock: first.libraryDock === 'chat' ? 'left' : first.libraryDock,
+    assetsWidth: legacy('assetsW') === null ? 248 : first.assetsWidth,
+    inspectorWidth: legacy('inspectorW') === null ? 300 : first.inspectorWidth,
+  });
   return edit ? { ...saved, edit } : saved;
 }
 

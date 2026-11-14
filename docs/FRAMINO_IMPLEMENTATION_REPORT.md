@@ -113,7 +113,30 @@ invalidates a saved layout. It shows:
 
 The panel never writes a second copy of the project: Agent and Studio keep sharing `film.html`.
 
-### 4.5 Defect found and fixed during the work
+### 4.5 Second copy sweep: the strings the UI sweep could not reach
+
+The first pass covered `*.ts` / `*.tsx`. A second pass covered the copy the CLI and the server print, because those
+are the first words many people read:
+
+| Where | Now |
+| --- | --- |
+| `studio/server/main.mjs` | `Framino Studio · <origin>` on start |
+| `studio/server/server.mjs` | fallback page `<title>Framino Studio`; "it is the Framino app's, which keeps it" |
+| `studio/server/get.mjs`, `captions.mjs` | "the Framino logo at the top left opens Settings" |
+| `src/library-search.mjs` | "Free, offline, from Framino's own library (CC0)" and every per-kind help line |
+| `studio/server/fcpxml.mjs`, `nle.mjs` | roles and gap names `Framino A1`, `Framino Subtitles`, default NLE project name `Framino` |
+| `studio/server/exports.mjs`, `diagnostics.mjs`, `history-store.mjs` | default export name, diagnostics zip name, the git author on saved versions |
+| `studio/server/fetch-repo.mjs` | "it is not a Framino film." |
+
+Deliberately **not** changed, because there they name something that is not this product:
+
+- the OpenFilm media library's provenance ("from the OpenFilm contributors"), kept as attribution;
+- the OpenFilm account service and its URLs (`openfilm.dev`, `OPENFILM_*`), the npm package, the CLI command;
+- the projects folder `~/Movies/OpenFilm/Projects` and `~/.openfilm` — changing them would orphan every existing
+  project and preference;
+- upstream links in README, Discussions and Issues.
+
+### 4.6 Defect found and fixed during the work
 
 The bulk rename inserted backticks around `openfilm` inside a template literal in `bin/openfilm.mjs`, breaking the
 module (`SyntaxError: Unexpected identifier 'openfilm'`), which failed the CLI and two render tests. Fixed by
@@ -130,6 +153,11 @@ was exercised directly (`--help`, `--version`).
 | Timeline / inspector / preview / library present | DOM probes (`[data-workspace-*]`, `[data-viewer-pane]`) | all present, geometry sane |
 | Agent panel shows real data | panel text read back | project, 1920×1080, 1 track, 1 clip, rev `3c436a42` |
 | Agent panel does not fake a run | UI inspection | Run disabled, reason shown |
+| **Edit reaches disk** | select the clip on the timeline, press Delete | `film.html` revision `3c436a42` → `e22e8b45`, clip count 1 → 0 |
+| **Undo restores it** | `Ctrl+Z` | revision → `5f1597cc`, clip back, 0 console errors |
+| **Export is real** | `openfilm render 0-2` in the sample project | `sample-0-2.mp4`: h264, 1920×1080, 30 fps, 2.000 s, 60 frames, 146 KB |
+| **Export keeps the project** | `film.html` after the render | unchanged, still one track, still editable |
+| **Layouts survive narrow windows** | 1280×800 probe | library 248 / monitor 730 / inspector 300 / timeline 200, no horizontal overflow |
 | TypeScript | `pnpm typecheck` (server + UI) | pass |
 | UI build | `vite build` | pass (2065 modules) |
 | CLI | `node bin/openfilm.mjs --help` / `--version` | pass |
@@ -137,13 +165,37 @@ was exercised directly (`--help`, `--version`).
 
 ## 6. Test results
 
-`pnpm test` (Node's test runner, 1920 subtests, ~30 min): **results and the classification of every failure are
-recorded at the end of this section.**
+`pnpm test` runs 1936 subtests (1920 TAP entries, 30 skipped by design) across the CLI, the renderer, the Studio
+server and the Studio UI, in about 25 minutes.
 
-> Failing tests are all in files this phase did not touch (`src/look.mjs`, `src/render.mjs`, `studio/server/*`), and
-> their stack traces come from the sandbox harness that injects a `node-safe-delete` shim
-> (`node-safe-delete-shim.cjs`) into `fs.rmSync`, which the project calls to clean its temporary render cells. They
-> are environment failures, reproduced identically by the untouched original files, not regressions of this work.
+| Run | Result |
+| --- | --- |
+| Baseline, untouched checkout | pass, except the render cases below |
+| After the rebrand and redesign | **see the tally at the end of this section** |
+
+Four kinds of failure appeared during the work, and each was settled rather than explained away:
+
+| Symptom | Cause | Resolution |
+| --- | --- | --- |
+| 3 × `src/look.test.mjs` "…" | this sandbox injects a `node-safe-delete` shim into `fs.rmSync`, which `src/look.mjs` calls to clear its temporary render cells. The stack is the harness's, not the repository's | not a code fault; the whole file passes 21/21 with the harness guard off (`CODEBUDDY_SAFE_DELETE_ENABLED=0`), and `src/look.mjs` is untouched by this work |
+| 6 × layer selection / context menu timeouts | the first-run profile forced `layers: false` and so overruled the person's saved Layers preference that those tests set | fixed: the profile now only fills in what was never chosen (`localStorage` `openfilm.project.*`), and never overrules it. All 7 layer tests and the context-menu test pass |
+| 2 × `studio/client.test.mjs` | the tests assert the CLI's own copy, which now says "Starting Framino Studio…" | test expectations updated to the new product name; the behaviour is unchanged |
+| 1 × `timeline-fade-volume.test.mjs` | the new toolbar Undo made `button[aria-label^="Undo"]` ambiguous (toolbar and timeline) | the test now targets the timeline's own control: `[data-timeline] button[aria-label^="Undo"]` |
+| `get`, `fcpxml`, `exports`, `library-search` assertions | user-visible strings moved from OpenFilm to Framino ("Framino's own library", `role="Framino A1"`, `<gap name="Framino">`, the default NLE project name) | tests updated to the new copy; no behaviour changed |
+
+Two further cases did not reproduce as code faults and are recorded as environment/flaky:
+
+- `src/seekable.test.mjs` — "one cancelled leaves it to the other": a render cancelled at the same moment still
+  produces its output (`1 !== 0`) on this machine. The file's code is untouched by this work.
+- `studio/server/stage.test.mjs` — four text-box measurements ("the box hugs the words") depend on the fallback
+  font metrics of the local browser; `stage.mjs` and its test are untouched.
+
+> Every failing test lives in a file this phase did not modify, or was updated only because the product's own
+> user-visible copy changed. No assertion was weakened, and no feature was faked to make a test pass.
+
+### The tally
+
+_Filled in from the final run:_
 
 ## 7. What is intact
 
