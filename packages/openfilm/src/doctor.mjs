@@ -172,7 +172,10 @@ export async function doctor({ run = 'openfilm', env = process.env, studio = nul
   const at = (/** @type {string} */ path) => tidy(path, home);
 
   const from = FROM_SOURCE ? 'a source checkout' : studio?.app ? 'the desktop app' : 'npm';
-  checks.push({ label: 'Framino', text: `${VERSION} (${from}; run as ${run})` });
+  /* the command it was run as, only when that is not the one everyone types: `openfilm` is the name it has, not a
+     second one, and a report that says it twice reads as if two things were installed. */
+  const as = run === 'openfilm' ? '' : `; run as ${run}`;
+  checks.push({ label: 'Framino', text: `${VERSION} (${from}${as})` });
   checks.push({ label: 'System', text: systemName() });
   const [major, minor] = process.versions.node.split('.').map(Number);
   const oldNode = major < 22 || (major === 22 && minor < 18);
