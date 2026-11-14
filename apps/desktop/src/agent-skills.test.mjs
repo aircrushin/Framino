@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { codexServers, mergeConfig, ownMcpServers, ownSkills, sessionSkills, skillStore } from './agent-skills.mjs';
+import { codexServers, isOurs, mergeConfig, ownMcpServers, ownSkills, sessionSkills, skillStore } from './agent-skills.mjs';
 
 /* which skills are off is read from Studio's prefs.json: a scratch home, never the person's */
 process.env.OPENFILM_HOME = mkdtempSync(join(tmpdir(), 'of-agent-skills-home-'));
@@ -115,7 +115,7 @@ test("OpenCode: every skill denied but its own, OpenFilm's and those let in; Pi:
   const kimi = await sessionSkills('kimi', { cwd: w.project, home: w.home, dataDir: w.dataDir, mine: join(w.openfilmHome, 'skills'), prefsHome: w.openfilmHome });
   assert.deepEqual(kimi.log, { openfilm: names, allowed: [], mcpAllowed: [], filtered: false, mcpFiltered: false });
   /* by its full name, saying whose it is; the rest of it links (a junction on Windows) to the project's own folder */
-  assert.match(readFileSync(join(pi.piSkills.paths[0], 'project-brand', 'SKILL.md'), 'utf8'), /^---\nname: project-brand\n[\s\S]*> OpenFilm skill `project\/brand`, by this project\./);
+  assert.match(readFileSync(join(pi.piSkills.paths[0], 'project-brand', 'SKILL.md'), 'utf8'), /^---\nname: project-brand\n[\s\S]*> Framino skill `project\/brand`, by this project\./);
 });
 
 test('expired session cleanup unlinks skills without removing their real folders', async () => {
@@ -158,19 +158,22 @@ test('two skills of a name are both given, each by its full name (owner-name), i
   const pi = await sessionSkills('byok', { cwd: w.project, home: w.home, dataDir: w.dataDir, mine: join(w.openfilmHome, 'skills'), prefsHome: w.openfilmHome });
   assert.ok(pi.piSkills.names.includes('project-brand') && pi.piSkills.names.includes('local-brand'));
   const folder = join(pi.piSkills.paths[0], 'local-brand');
-  assert.match(readFileSync(join(folder, 'SKILL.md'), 'utf8'), /^---\nname: local-brand\ndescription: My brand\n---\n\n> OpenFilm skill `local\/brand`, by you\.\n\n/);
+  assert.match(readFileSync(join(folder, 'SKILL.md'), 'utf8'), /^---\nname: local-brand\ndescription: My brand\n---\n\n> Framino skill `local\/brand`, by you\.\n\n/);
   assert.equal(readFileSync(join(folder, 'look.css'), 'utf8'), 'body {}');
   assert.equal(readFileSync(join(folder, 'scripts', 'make.sh'), 'utf8'), 'echo');
   assert.match(readFileSync(join(mine, 'SKILL.md'), 'utf8'), /^---\nname: brand\n/, 'its own file untouched');
   assert.match(readFileSync(join(pi.piSkills.paths[0], 'project-brand', 'SKILL.md'), 'utf8'), /brand skill/, 'the project\'s');
 });
 
-test("OpenFilm's own skill for terminal agents is known, never offered, and always off in the app", async () => {
+test("Framino's own skill for terminal agents is known, never offered, and always off in the app", async () => {
   const w = world();
-  skill(join(w.home, '.claude', 'skills', 'openfilm'), 'openfilm', 'Make videos as web pages with OpenFilm.');
+  skill(join(w.home, '.claude', 'skills', 'openfilm'), 'openfilm', 'Make videos as web pages with Framino.');
   const own = await ownSkills('claude', { cwd: w.project, home: w.home });
   assert.equal(own.find((s) => s.name === 'openfilm')?.ours, true);
-  assert.equal(own.find((s) => s.name === 'research')?.ours, undefined);
+  assert.equal(own.find((s) => s.name === 'research')?.ours, undefined, 'the person\'s own is not it');
+  /* a copy installed before the rebrand still names OpenFilm in its description, and is the same skill */
+  assert.equal(isOurs({ name: 'openfilm', description: 'Make videos as web pages with OpenFilm.' }), true);
+  assert.equal(isOurs({ name: 'openfilm-edit', description: 'How a Framino film is made.' }), false, 'its manuals are not it');
   const s = await sessionSkills('claude', { cwd: w.project, home: w.home, dataDir: w.dataDir, mine: join(w.openfilmHome, 'skills'), allowed: ['openfilm', 'research'] });
   assert.equal(s.claude.settings.skillOverrides.openfilm, 'off', 'off even when it was let in');
   assert.equal(s.claude.settings.skillOverrides.research, undefined);

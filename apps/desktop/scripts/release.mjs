@@ -161,7 +161,7 @@ await builder.build({
     },
     appId: preview ? 'dev.openfilm.desktop.preview' : 'dev.openfilm.desktop',
     productName: NAME,
-    copyright: 'Copyright © 2026 OpenFilm',
+    copyright: 'Copyright © 2026 Framino contributors; based on OpenFilm',
     electronVersion,
     asar: true,
     /* run by Electron as Node from outside the archive: the CLI the agents run, the agents' adapters */
@@ -242,7 +242,7 @@ async function windowsResources(context) {
   info.setProductVersion(major, minor, patch, 0, 1033);
   info.setStringValues({ lang: 1033, codepage: 1200 }, {
     ProductName: 'Framino', FileDescription: 'Framino', CompanyName: 'Framino (fork of OpenFilm)', OriginalFilename: 'Framino.exe',
-    InternalName: 'Framino', LegalCopyright: 'Copyright © 2026 OpenFilm', FileVersion: pkg.version, ProductVersion: pkg.version,
+    InternalName: 'Framino', LegalCopyright: 'Copyright © 2026 Framino contributors; based on OpenFilm', FileVersion: pkg.version, ProductVersion: pkg.version,
   });
   info.outputToResourceEntries(res.entries);
   res.outputResource(exe);

@@ -128,10 +128,10 @@ test('the update dialogs have every line in every language', async () => {
   await check({ status: 'ready', availableVersion: '0.2.4' })('ko');
   await check({ status: 'error', error: 'offline' })('es');
   assert.deepEqual(messages.map((m) => [m.title, m.message, m.detail, m.buttons]), [
-    ['检查更新', 'OpenFilm 已是最新版本', '版本 0.2.3（Beta）', ['好']],
-    ['アップデートを確認', 'OpenFilm をダウンロードしています', UPDATE_DIALOG_WORDS.ja.downloadingDetail, ['OK']],
-    ['업데이트 확인', 'OpenFilm 0.2.4 준비가 끝났습니다', UPDATE_DIALOG_WORDS.ko.readyDetail, ['재시작', '나중에']],
+    ['检查更新', 'Framino 已是最新版本', '版本 0.2.3（Beta）', ['好']],
+    ['アップデートを確認', 'Framino をダウンロードしています', UPDATE_DIALOG_WORDS.ja.downloadingDetail, ['OK']],
+    ['업데이트 확인', 'Framino 0.2.4 준비가 끝났습니다', UPDATE_DIALOG_WORDS.ko.readyDetail, ['재시작', '나중에']],
     ['업데이트 확인', '아직 재시작할 수 없습니다', UPDATE_DIALOG_WORDS.ko.errors['agent-busy'], ['확인']],
-    ['Buscar actualizaciones', 'No se pudo buscar actualizaciones', `${UPDATE_DIALOG_WORDS.es.errors.offline} OpenFilm también lo volverá a intentar por sí solo.`, ['Aceptar']],
+    ['Buscar actualizaciones', 'No se pudo buscar actualizaciones', `${UPDATE_DIALOG_WORDS.es.errors.offline} Framino también lo volverá a intentar por sí solo.`, ['Aceptar']],
   ]);
 });

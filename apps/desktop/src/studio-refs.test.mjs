@@ -142,7 +142,7 @@ test('an example, or a part of it: its pill names it and the part, the agent rea
   assert.deepEqual([pill.id, pill.kind, pill.label, pill.detail], ['studio:example:openfilm-intro:16.12-31.6', 'example', 'OpenFilm intro', 'S4-Studio']);
   assert.equal(refPill(undefined, whole).detail, undefined);
   const text = studioReferencesText([part, whole]);
-  assert.match(text, /\[1\] example film "OpenFilm intro" \(another OpenFilm film, not this one: read its film\.html and pages for how it is made\) · folder \/cache\/examples\/openfilm-intro · its 16\.120–31\.600 s \("S4-Studio"\) · source https:\/\/github\.com\//);
+  assert.match(text, /\[1\] example film "OpenFilm intro" \(another Framino film, not this one: read its film\.html and pages for how it is made\) · folder \/cache\/examples\/openfilm-intro · its 16\.120–31\.600 s \("S4-Studio"\) · source https:\/\/github\.com\//);
   assert.match(text, /\[2\] example film "One Prompt" .* · the whole film · source /);
   assert.match(studioReferencesText([{ ...whole, folder: undefined }]), /could not be fetched: read it at its source · the whole film · source https:/, 'not fetched: its source said instead');
   assert.ok(sameStudioThing(part, { ...part }) && !sameStudioThing(part, whole));
@@ -156,7 +156,7 @@ test('a voice of the library: its pill names it and its service, the agent reads
   assert.deepEqual([pill.id, pill.kind, pill.label, pill.detail], ['studio:voice:cartesia/db6b0ed5', 'voice', 'Skylar', 'Cartesia']);
   const text = studioReferencesText([voice, away]);
   assert.match(text, /\[1\] voice "Skylar" of Cartesia for voice-over, id `db6b0ed5` · speaks en-US · speak in it with `openfilm get tts --via openfilm --model cartesia\/sonic-3\.6 --voice db6b0ed5`/);
-  assert.match(text, /\[2\] voice "Aanya" of Inworld .* not connected: the person connects Inworld or OpenFilm in Studio's Settings › Services first/);
+  assert.match(text, /\[2\] voice "Aanya" of Inworld .* not connected: the person connects Inworld or Framino in Studio's Settings › Services first/);
   assert.ok(sameStudioThing(voice, { ...voice, via: null }));
   assert.ok(!sameStudioThing(voice, away));
   assert.equal(pillCard(pill, (k) => k).title, 'refCard.title.voice');

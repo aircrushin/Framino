@@ -4,7 +4,7 @@ import { INSTRUCTIONS, STUDIO_REFERENCES, ownAgentPrompt } from './agents.mjs';
 
 const count = (text, part) => text.split(part).length - 1;
 
-test("the app's own agent's prompt is short: where it is and how it talks; how a film is made is in OpenFilm's skills", () => {
+test("the app's own agent's prompt is short: where it is and how it talks; how a film is made is in Framino's skills", () => {
   const prompt = ownAgentPrompt();
   assert.ok(prompt.split(/\s+/).length < 300, 'a page, not the manual');
   assert.ok(!prompt.includes('<manual>') && !prompt.includes('## film.html'), 'the manual is not carried: its skills are');
@@ -15,7 +15,7 @@ test("the app's own agent's prompt is short: where it is and how it talks; how a
   assert.match(prompt, /already open beside this chat/);
   assert.ok(!prompt.includes('openfilm render'), 'the person exports from Studio');
   const without = ownAgentPrompt({ edit: false });
-  assert.ok(!without.includes('`edit`') && without.includes("OpenFilm's skills, listed below, say how."), 'turned off: not sent to it');
+  assert.ok(!without.includes('`edit`') && without.includes("Framino's skills, listed below, say how."), 'turned off: not sent to it');
 });
 
 test('every agent is told how to point at Studio', () => {

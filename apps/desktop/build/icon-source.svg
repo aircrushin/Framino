@@ -1,0 +1,15 @@
+<!--
+  Framino app icon master, 1024x1024. Rendered to build/logo-1024.png (and every smaller size) by
+  scripts/make-icons.mjs. The tile is the Studio's darkest surface (#181A19) and the mark is the Studio's
+  accent sage (#8BA58E), so the app icon and the app chrome read as one product. No gradient, no badge.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="230" fill="#181A19"/>
+  <rect x="1" y="1" width="1022" height="1022" rx="229" fill="none" stroke="#353A36" stroke-width="2"/>
+  <g transform="translate(512 512) scale(32) translate(-12.25 -15.25)">
+    <g fill="none" stroke="#8BA58E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 24V10a3.5 3.5 0 0 1 3.5-3.5h2.5"/>
+      <path d="M7.5 14h10"/>
+    </g>
+  </g>
+</svg>

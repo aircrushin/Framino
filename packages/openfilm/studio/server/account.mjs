@@ -22,10 +22,10 @@ async function connection(key, baseUrl, { fresh = false, fetch: fetchImpl = fetc
       });
       const body = await response.json().catch(() => null);
       const message = typeof body?.error?.message === 'string' ? body.error.message
-        : typeof body?.message === 'string' ? body.message : `OpenFilm answered ${response.status}.`;
+        : typeof body?.message === 'string' ? body.message : `Framino answered ${response.status}.`;
       result = { status: response.status, catalog: response.ok ? body : null, error: response.ok ? null : message.replaceAll(key, '[redacted]') };
     } catch {
-      result = { status: 0, catalog: null, error: 'OpenFilm could not be reached. Try connecting again.' };
+      result = { status: 0, catalog: null, error: 'Framino could not be reached. Try connecting again.' };
     }
     cached = { key, baseUrl, result, until: Date.now() + (result.status === 200 ? 5 * 60_000 : 30_000) };
     return result;

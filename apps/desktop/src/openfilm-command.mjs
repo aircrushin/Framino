@@ -29,7 +29,7 @@ const sq = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;
 /** The script's text: Electron as Node, running the CLI with whatever it was given, with the app's ffmpeg and `env`. */
 export function commandScript(node, cli, { ffmpeg = null, env = {} } = {}) {
   const set = [...Object.entries(env).map(([k, v]) => `${k}=${sq(v)}`), ...(ffmpeg ? [`PATH=${sq(ffmpeg)}:"$PATH"`] : [])];
-  return `#!/bin/sh\n# OpenFilm's own copy of the openfilm command (written by the app; changes are lost)\n${set.map((s) => `${s} `).join('')}ELECTRON_RUN_AS_NODE=1 OPENFILM_NO_UPDATE_CHECK=1 exec ${sq(node)} ${sq(cli)} "$@"\n`;
+  return `#!/bin/sh\n# Framino's own copy of the openfilm command (written by the app; changes are lost)\n${set.map((s) => `${s} `).join('')}ELECTRON_RUN_AS_NODE=1 OPENFILM_NO_UPDATE_CHECK=1 exec ${sq(node)} ${sq(cli)} "$@"\n`;
 }
 
 /** The same for Windows: a `.cmd` (what a command line there finds as `openfilm`). */
@@ -37,7 +37,7 @@ export function commandScriptWindows(node, cli, { ffmpeg = null, env = {} } = {}
   // Inside `set "K=V"` quotes cmd already takes & | < > ^ literally; only % needs doubling.
   const esc = (v) => String(v).replace(/%/g, '%%');
   const set = [...Object.entries(env).map(([k, v]) => `set "${k}=${esc(v)}"\r\n`), ...(ffmpeg ? [`set "PATH=${esc(ffmpeg)};%PATH%"\r\n`] : [])];
-  return `@echo off\r\nrem OpenFilm's own copy of the openfilm command (written by the app; changes are lost)\r\nsetlocal\r\n${set.join('')}set ELECTRON_RUN_AS_NODE=1\r\nset OPENFILM_NO_UPDATE_CHECK=1\r\n"${esc(node)}" "${esc(cli)}" %*\r\n`;
+  return `@echo off\r\nrem Framino's own copy of the openfilm command (written by the app; changes are lost)\r\nsetlocal\r\n${set.join('')}set ELECTRON_RUN_AS_NODE=1\r\nset OPENFILM_NO_UPDATE_CHECK=1\r\n"${esc(node)}" "${esc(cli)}" %*\r\n`;
 }
 
 /**

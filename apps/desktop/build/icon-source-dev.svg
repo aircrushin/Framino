@@ -1,0 +1,16 @@
+<!--
+  Framino app icon, development build. Same tile and mark as icon-source.svg, with the mark lifted to make room
+  for a DEV pill: a local build must never be mistaken for a release in a dock or a task switcher.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="230" fill="#181A19"/>
+  <rect x="1" y="1" width="1022" height="1022" rx="229" fill="none" stroke="#353A36" stroke-width="2"/>
+  <g transform="translate(512 430) scale(22) translate(-12.25 -15.25)">
+    <g fill="none" stroke="#8BA58E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 24V10a3.5 3.5 0 0 1 3.5-3.5h2.5"/>
+      <path d="M7.5 14h10"/>
+    </g>
+  </g>
+  <rect x="352" y="706" width="320" height="92" rx="46" fill="#D08C4A"/>
+  <text x="512" y="769" text-anchor="middle" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-size="54" font-weight="700" letter-spacing="2" fill="#181A19">DEV</text>
+</svg>

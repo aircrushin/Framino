@@ -98,11 +98,12 @@ async function skillFolders(dir, { except = [] } = {}) {
 }
 
 /**
- * OpenFilm's own skill for agents in a terminal (the repository's skills/openfilm: "run `npx openfilm`, read the
+ * Framino's own skill for agents in a terminal (the repository's skills/openfilm: "run `npx openfilm`, read the
  * manual"), installed in an agent: in the app it is never wanted, as the app tells the agent the same, and its `npx`
- * would contradict it. Never shown, never let in.
+ * would contradict it. Never shown, never let in. A copy installed before the rebrand still says OpenFilm in its
+ * description, and is the same skill, so both names count.
  */
-export const isOurs = (skill) => skill.name === 'openfilm' && /\bOpenFilm\b/.test(skill.description ?? '');
+export const isOurs = (skill) => skill.name === 'openfilm' && /\b(Framino|OpenFilm)\b/.test(skill.description ?? '');
 /** the folder and each above it, to the root */
 const upFrom = (cwd) => { const out = []; for (let up = resolve(cwd); ; up = dirname(up)) { out.push(up); if (up === dirname(up)) break; } return out; };
 const subdirs = (dir) => { try { return readdirSync(dir); } catch { return []; } };
@@ -249,7 +250,7 @@ function linkFolder(base, skills) {
       if (!subdirs(plugin).length) {
         mkdirSync(join(plugin, '.claude-plugin'), { recursive: true });
         mkdirSync(join(plugin, 'skills'));
-        writeFileSync(join(plugin, '.claude-plugin', 'plugin.json'), `${JSON.stringify({ name: owner, description: `OpenFilm skills by ${makerOf(skill)}`, version: '1.0.0' }, null, 2)}\n`);
+        writeFileSync(join(plugin, '.claude-plugin', 'plugin.json'), `${JSON.stringify({ name: owner, description: `Framino skills by ${makerOf(skill)}`, version: '1.0.0' }, null, 2)}\n`);
       }
       symlinkSync(skill.folder, join(plugin, 'skills', name), link);
     } catch { /* one that cannot be linked is left out */ }
@@ -258,10 +259,10 @@ function linkFolder(base, skills) {
   return dir;
 }
 
-/** Who made a skill, as they write their name: its repository's account, else its uid's owner (OpenFilm for its own). */
+/** Who made a skill, as they write their name: its repository's account, else its uid's owner (Framino for its own). */
 const makerOf = (skill) => {
   const owner = skill.uid.split('/')[0];
-  if (owner === 'openfilm') return 'OpenFilm';
+  if (owner === 'openfilm') return 'Framino';
   if (owner === 'local') return 'you';
   if (owner === 'project') return 'this project';
   return /^https:\/\/github\.com\/([\w.-]+)\//i.exec(skill.repository ?? '')?.[1] ?? owner;
@@ -276,7 +277,7 @@ function renamedSkill(skill, to, link) {
   mkdirSync(to);
   const text = readFileSync(skill.file, 'utf8');
   const head = /^(\uFEFF?---\r?\n)([\s\S]*?)(\r?\n---\r?\n?)/.exec(text);
-  const note = `> OpenFilm skill \`${skill.uid}\`, by ${makerOf(skill)}.\n\n`;
+  const note = `> Framino skill \`${skill.uid}\`, by ${makerOf(skill)}.\n\n`;
   const named = !head ? `---\nname: ${skill.as}\n---\n\n${note}${text}`
     : `${head[1]}${/^name:.*$/m.test(head[2]) ? head[2].replace(/^name:.*$/m, `name: ${skill.as}`) : `name: ${skill.as}\n${head[2]}`}${head[3]}${head[3].endsWith('\n') ? '' : '\n'}\n${note}${text.slice(head[0].length).replace(/^\r?\n/, '')}`;
   writeFileSync(join(to, 'SKILL.md'), named);
