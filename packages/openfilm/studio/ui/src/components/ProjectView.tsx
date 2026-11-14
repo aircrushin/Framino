@@ -10,7 +10,8 @@ import * as React from 'react';
 import { afterPaintIdle } from '@/lib/after-paint-idle';
 import { loadCanvas } from './canvas/load';
 import { CanvasLoading } from './canvas/CanvasLoading';
-import { BookmarkPlus, ClipboardCopy, ClipboardPaste, FolderOpen, Layers, MessageSquarePlus, MonitorDown, Scissors, Settings2, TriangleAlert, Upload, Workflow } from 'lucide-react';
+import { BookmarkPlus, ClipboardCopy, ClipboardPaste, FolderOpen, Layers, MessageSquarePlus, MonitorDown, Redo2, Scissors, Settings2, Terminal, TriangleAlert, Undo2, Upload, Workflow } from 'lucide-react';
+import { FraminoAgentPanel } from './FraminoAgentPanel';
 import { applyOps } from '../../../server/ops.mjs';
 import { withPreset } from '../../../../src/clip-motion.mjs';
 import { PARTS, compoundFolder, compoundOf, dissolvedOf, srcInto, srcOutOf } from '../../../server/compound.mjs';
@@ -4470,6 +4471,8 @@ export function ProjectView({ projectId, onProject, onLeave }: {
   }, [newCaptionTrack, translateTrack]);
   const [desktopOpen, setDesktopOpen] = React.useState(false);
   const [historyOpen, setHistoryOpen] = React.useState(false);
+  /* Framino: the Agent side panel is an overlay, so it never changes the workspace geometry. */
+  const [agentOpen, setAgentOpen] = React.useState(false);
   const history = useProjectHistory(projectId, { onError: toast.showError, beforeChange: film.settled });
   const forgetSteps = React.useRef(film.forget);
   forgetSteps.current = film.forget;
@@ -4555,6 +4558,9 @@ export function ProjectView({ projectId, onProject, onLeave }: {
             {/* the window's controls over this, then the app menu */}
             <div aria-hidden className={studioHost?.tabs ? tabStyles.windowSpace : 'shrink-0 self-stretch'} style={{ width: 'var(--titlebar-logo-x)' }} />
             <div className={studioHost?.tabs ? tabStyles.system : 'pointer-events-auto relative flex min-w-0 items-center'}><AppMenu onSettings={setSettingsOpen} /></div>
+            {/* Framino wordmark: a quiet lowercase mark, not a decorative logo. The desktop host's window title
+                already carries the name, so only the browser Studio shows it here. */}
+            {!studioHost?.tabs ? <span className="framino-wordmark pointer-events-none ml-1 mr-2 shrink-0 select-none">framino</span> : null}
             {studioHost?.tabs ? <ProjectTabs current={projectTitle} onProjects={() => setProjectsOpen(true)} onRenameCurrent={startRename} onCoverCurrent={coverFromFrame} /> : null}
             <div className="pointer-events-auto relative flex min-w-0 items-center gap-1">
               <UpdateButton />
@@ -4569,6 +4575,28 @@ export function ProjectView({ projectId, onProject, onLeave }: {
             </div>
             <div className="min-w-0 flex-1" />
             <div className="pointer-events-auto flex min-w-0 items-center justify-end gap-1">
+              {/* Framino: the truthful save state. There is no unsaved buffer — every edit is written to film.html
+                  at once (editor/use-film.ts), so the disk revision below is the project's current state. */}
+              <span className="framino-numeric hidden shrink-0 items-center gap-1.5 text-[10px] uppercase tracking-[0.08em] text-[var(--studio-text-muted)] lg:inline-flex"
+                title="Edits are written to film.html immediately; the revision is the file on disk.">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--state-success)' }} />
+                {film.rev ? `Saved · ${film.rev.slice(0, 6)}` : 'Local project'}
+              </span>
+              {/* the real session edit history (editor/use-film.ts); the same one the timeline toolbar and ⌘Z use */}
+              <Tooltip label={t('history.undo')} shortcut={keyHint('undo')} side="bottom">
+                <button type="button" aria-label={t('history.undo')} disabled={!film.canUndo} onClick={() => film.undo()} className={TOP_BTN}><Undo2 size={15} /></button>
+              </Tooltip>
+              <Tooltip label={t('history.redo')} shortcut={keyHint('redo')} side="bottom">
+                <button type="button" aria-label={t('history.redo')} disabled={!film.canRedo} onClick={() => film.redo()} className={TOP_BTN}><Redo2 size={15} /></button>
+              </Tooltip>
+              {/* Framino: one compact Agent entry. It opens the side panel; it never runs a turn by itself. */}
+              <Tooltip label="Agent" side="bottom">
+                <button type="button" aria-label="Agent" aria-expanded={agentOpen}
+                  onClick={() => setAgentOpen(open => !open)}
+                  className={`${TOP_BTN} ${agentOpen ? 'bg-[var(--bg-picked)] text-[var(--accent)]' : ''}`}>
+                  <Terminal size={16} />
+                </button>
+              </Tooltip>
               {/* the edit's own: its panes, its versions, its export (the canvas has its own bars) */}
               <ProjectLayoutMenu className={TOP_BTN}
                 value={workspaceLayout} onChange={applyWorkspace} onReset={resetWorkspace}
@@ -4576,13 +4604,15 @@ export function ProjectView({ projectId, onProject, onLeave }: {
               {canvasOpen ? null : (<>
               <ProjectHistoryButton open={historyOpen} onClick={openHistory} className={TOP_BTN} />
               <Tooltip label={t('projectMenu.export')} side="bottom">
-                <button type="button" aria-label={t('projectMenu.export')} aria-haspopup="dialog" aria-expanded={exportOpen} className={TOP_BTN}
+                <button type="button" aria-label={t('projectMenu.export')} aria-haspopup="dialog" aria-expanded={exportOpen}
+                  className="framino-primary-action flex h-[26px] shrink-0 items-center gap-1.5 px-2.5 text-[12px] transition"
                   onClick={() => {
                     if (previewError) toast.showError(`${t('project.filmCannotExport')} ${previewError}`);
                     else if (totalMs > 0) setExportOpen(true);
                     else toast.show(t('project.filmNotReady'));
                   }}>
-                  <Upload size={16} />
+                  <Upload size={14} />
+                  <span>{t('projectMenu.export')}</span>
                 </button>
               </Tooltip>
               </>)}
@@ -5071,6 +5101,7 @@ export function ProjectView({ projectId, onProject, onLeave }: {
         onDone={finishLayoutEdit} onCancel={cancelLayoutEdit} onUndo={layoutDraft.undo} onRedo={layoutDraft.redo} canUndo={layoutDraft.canUndo} canRedo={layoutDraft.canRedo}
         onReset={() => { const next=defaultWorkspace(workspaceMode); layoutDraft.change({ ...next, tree:defaultDockTree(next,fitTimelineHeight.current) }); }} /> : null}
       <DesktopDialog open={desktopOpen} onClose={() => setDesktopOpen(false)} />
+      <FraminoAgentPanel open={agentOpen} onClose={() => setAgentOpen(false)} projectId={projectId} />
       <ExportCenter
         open={exportOpen}
         onClose={() => { setExportOpen(false); setExportClipId(null); }}

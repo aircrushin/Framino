@@ -1,8 +1,27 @@
 import React from 'react';
 import { CURRENT_WORKSPACE_KEY, defaultWorkspace, readWorkspaceLayout, readWorkspaceProfiles, type WorkspaceLayout, type WorkspaceMode } from './workspaces';
 
+/* Framino's professional studio opens with a persistent left Media Library, a monitor in the middle, an Inspector
+   on the right and the timeline along the bottom. DEFAULT_WORKSPACE is left untouched: it is asserted by the
+   layout tests and is the desktop host's chat-centric profile. This is applied once, only to a browser Studio
+   with no saved layout, and the person can still change or reset it from the layout menu. */
+const FRAMINO_FIRST_RUN_KEY = 'framino.studio.workspace.default.v1';
+function initialProfiles() {
+  const store = { getItem: (key: string) => localStorage.getItem(key) };
+  const saved = readWorkspaceProfiles(store);
+  if (store.getItem(CURRENT_WORKSPACE_KEY) !== null) return saved;
+  /* a window that hosts a chat column keeps its own native panel arrangement */
+  if ((globalThis as { openfilmHost?: { panel?: unknown } }).openfilmHost?.panel) return saved;
+  try {
+    if (localStorage.getItem(FRAMINO_FIRST_RUN_KEY)) return saved;
+    localStorage.setItem(FRAMINO_FIRST_RUN_KEY, '1');
+  } catch { return saved; }
+  const edit = readWorkspaceLayout({ ...saved.edit, assets: true, layers: false, chat: false, libraryDock: 'left', assetsWidth: 248, inspectorWidth: 300 });
+  return edit ? { ...saved, edit } : saved;
+}
+
 export function useWorkspaceLayouts(mode: WorkspaceMode) {
-  const [profiles, setProfiles] = React.useState(() => readWorkspaceProfiles({ getItem: key => localStorage.getItem(key) }));
+  const [profiles, setProfiles] = React.useState(initialProfiles);
   const modeRef = React.useRef(mode); modeRef.current = mode;
   const latest = React.useRef(profiles); latest.current = profiles;
   const [storageFailed, setStorageFailed] = React.useState(false);

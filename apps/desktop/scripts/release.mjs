@@ -65,7 +65,7 @@ const official = process.argv.includes('--official');
    folder, Studio home, port and projects (src/flavor.mjs `preview`, from the package's `openfilmFlavor`); no updates */
 const preview = process.argv.includes('--preview');
 if (preview && official) throw new Error('--preview is never the official build');
-const NAME = preview ? 'OpenFilm Preview' : 'OpenFilm';
+const NAME = preview ? 'Framino Preview' : 'Framino';
 const productFile = join(protocol, official ? 'product.official.json' : 'product.json');
 const product = JSON.parse(readFileSync(productFile, 'utf8'));
 const updates = typeof product.desktop?.updates === 'string' ? product.desktop.updates.trim().replace(/\/+$/, '') : '';
@@ -97,7 +97,7 @@ writeFileSync(join(stage, 'package.json'), `${JSON.stringify({
   ...(preview ? { openfilmFlavor: 'preview' } : {}),
   version: pkg.version,
   description: pkg.description,
-  author: 'OpenFilm',
+  author: 'Framino contributors (based on OpenFilm)',
   license: 'UNLICENSED',
   private: true,
   type: 'module',
@@ -192,7 +192,7 @@ await builder.build({
       entitlements: join(desktop, 'build/entitlements.mac.plist'),
       entitlementsInherit: join(desktop, 'build/entitlements.mac.plist'),
       /* what macOS says when Studio's record button first asks for the microphone (the entitlement above lets it) */
-      extendInfo: { NSMicrophoneUsageDescription: 'OpenFilm records sound from the microphone when you press Record.' },
+      extendInfo: { NSMicrophoneUsageDescription: 'Framino records sound from the microphone when you press Record.' },
       ...(unsigned ? { identity: null } : { identity: IDENTITY, notarize: true }),
     },
     /* the downloads keep one name from version to version: the website links the latest release's by it */
@@ -241,8 +241,8 @@ async function windowsResources(context) {
   info.setFileVersion(major, minor, patch, 0, 1033);
   info.setProductVersion(major, minor, patch, 0, 1033);
   info.setStringValues({ lang: 1033, codepage: 1200 }, {
-    ProductName: 'OpenFilm', FileDescription: 'OpenFilm', CompanyName: 'OpenFilm', OriginalFilename: 'OpenFilm.exe',
-    InternalName: 'OpenFilm', LegalCopyright: 'Copyright © 2026 OpenFilm', FileVersion: pkg.version, ProductVersion: pkg.version,
+    ProductName: 'Framino', FileDescription: 'Framino', CompanyName: 'Framino (fork of OpenFilm)', OriginalFilename: 'Framino.exe',
+    InternalName: 'Framino', LegalCopyright: 'Copyright © 2026 OpenFilm', FileVersion: pkg.version, ProductVersion: pkg.version,
   });
   info.outputToResourceEntries(res.entries);
   res.outputResource(exe);

@@ -1,4 +1,4 @@
-/** OpenFilm's built-in Pi agent: the Services account and the cloud's model catalog, with no separate credentials. */
+/** Framino's built-in Pi agent: the Services account and the cloud's model catalog, with no separate credentials. */
 import { join } from 'node:path';
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { contextLength, effortLevels } from './pi-config.mjs';
@@ -19,7 +19,7 @@ export function agentOffer(body, baseUrl) {
     return [{ id: m.id, model: m.id, name: typeof m.name === 'string' ? m.name : m.id,
       api: 'openai-completions', baseUrl, keyEnv: 'OPENFILM_ACCOUNT_KEY', levels,
       effort: levels.includes(effort) ? effort : levels[0], context: contextLength(m.context_length) ?? 128_000,
-      // The address is OpenFilm's, but its wire format is OpenRouter's, including reasoning and tool history.
+      // The address is Framino's, but its wire format is OpenRouter's, including reasoning and tool history.
       compat: { supportsDeveloperRole: false, supportsStore: false, supportsUsageInStreaming: true,
         maxTokensField: 'max_tokens', thinkingFormat: 'openrouter', sendSessionAffinityHeaders: true, sessionAffinityFormat: 'openrouter' },
     }];
@@ -102,10 +102,10 @@ export function createOpenFilmAgent({ dataDir, readAccount, signIn, cancelSignIn
           needsSignIn = response.status === 401;
           offer = null;
           if (needsSignIn) { error = null; return; }
-          throw new Error(body?.error?.message || body?.message || `OpenFilm answered ${response.status}.`);
+          throw new Error(body?.error?.message || body?.message || `Framino answered ${response.status}.`);
         }
         const got = agentOffer(body, account.baseUrl);
-        if (!got.models.length) throw new Error('OpenFilm has no agent models available right now.');
+        if (!got.models.length) throw new Error('Framino has no agent models available right now.');
         if (JSON.stringify(got) !== JSON.stringify(offer)) {
           if (offer) refreshSessions();
           revision++;
@@ -153,8 +153,8 @@ export function createOpenFilmAgent({ dataDir, readAccount, signIn, cancelSignIn
     switchAccount: () => action(async () => { closeSessions(); await cancelSignIn(); await signOut(); await signIn(); }),
     async harness() {
       await refresh();
-      if (!account?.key || needsSignIn) throw Object.assign(new Error('Sign in to OpenFilm in Settings → Agents or Services.'), { code: 'sign-in' });
-      if (!visibleModels().length) throw new Error(error || 'The OpenFilm agent has no visible models available.');
+      if (!account?.key || needsSignIn) throw Object.assign(new Error('Sign in to Framino in Settings → Agents or Services.'), { code: 'sign-in' });
+      if (!visibleModels().length) throw new Error(error || 'The Framino agent has no visible models available.');
       return { home: join(dataDir, 'agents', 'openfilm', 'pi'), models: visibleModels(), model: firstModel(), env: { OPENFILM_ACCOUNT_KEY: account.key } };
     },
   };

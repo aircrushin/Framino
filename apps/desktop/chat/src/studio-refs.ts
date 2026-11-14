@@ -304,9 +304,9 @@ function refLine(ref: StudioRef): string {
       `subtitle ${ref.start.toFixed(3)}–${ref.end.toFixed(3)} s ${quote(ref.text, 300)}${ref.lang ? ` (${ref.lang})` : ''}`,
       typeof ref.index === 'number' ? `line ${ref.index}` : null,
     ].filter(Boolean).join(' · ');
-    /* not this film: another OpenFilm film, whose source shows how it is made */
+    /* not this film: another Framino film, whose source shows how it is made */
     case 'example': return [
-      `example film ${quote(ref.title, 80)} (another OpenFilm film, not this one: read its film.html and pages for how it is made)`,
+      `example film ${quote(ref.title, 80)} (another Framino film, not this one: read its film.html and pages for how it is made)`,
       ref.folder ? `folder ${ref.folder}` : 'its folder could not be fetched: read it at its source',
       ref.canvas ? 'its canvas, the steps it was made with, is .film/canvas.json in its folder (`openfilm canvas` run there prints it)' : null,
       ref.end ? `its ${ref.start?.toFixed(3) ?? '0.000'}–${ref.end.toFixed(3)} s${ref.segment ? ` (${quote(ref.segment, 60)})` : ''}` : 'the whole film',
@@ -317,7 +317,7 @@ function refLine(ref: StudioRef): string {
       const model = ref.models[0];
       const how = ref.via
         ? `speak in it with \`openfilm get tts --via ${ref.via}${model ? ` --model ${model}` : ''} --voice ${ref.id}\`${ref.models.length > 1 ? ` (models: ${ref.models.join(', ')})` : ''}`
-        : `not connected: the person connects ${ref.service} or OpenFilm in Studio's Settings › Services first`;
+        : `not connected: the person connects ${ref.service} or Framino in Studio's Settings › Services first`;
       return [`voice ${quote(ref.name, 80)} of ${ref.service} for voice-over, id \`${ref.id}\``, ref.language ? `speaks ${ref.language}` : null, how].filter(Boolean).join(' · ');
     }
   }

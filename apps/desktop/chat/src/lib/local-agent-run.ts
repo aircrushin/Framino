@@ -800,7 +800,7 @@ export async function runLocalAgentTurn({
   onStarted?: () => void;
 }): Promise<{ stopReason: string; lastTurnId: string }> {
   const bridge = desktopBridge()?.localAgents;
-  if (!bridge) throw new Error('This needs the OpenFilm Mac app.');
+  if (!bridge) throw new Error('This needs the Framino Mac app.');
   listen();
   turns.set(turn.turnId, turn);
   current = turn;
@@ -1059,7 +1059,7 @@ export function restingItems(items: TranscriptItem[]): TranscriptItem[] {
 }
 
 /** what a turn the app closed on (or crashed in) says, kept while it ran and read back with it not running */
-export const INTERRUPTED = 'OpenFilm closed while the agent was working on this.';
+export const INTERRUPTED = 'Framino closed while the agent was working on this.';
 const ACTIVE_STATUSES = new Set<Turn['status']>(['generating', 'failing', 'canceling']);
 
 /**

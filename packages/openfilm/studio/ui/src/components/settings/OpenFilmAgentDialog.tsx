@@ -58,7 +58,7 @@ export function OpenFilmAgentDialog({ agent, onClose, actions, connectionStatus,
       }}>
       <DialogClose label={t('settings.agents.close')} onClose={onClose} />
       <div className="shrink-0 px-7 pt-7">
-        <DialogIdentity titleId={titleId} name="OpenFilm" mark={<ProviderMark id="openfilm" size={24} />}
+        <DialogIdentity titleId={titleId} name="Framino" mark={<ProviderMark id="openfilm" size={24} />}
           website={{ href: `https://${PROVIDER_SITES.openfilm}`, label: PROVIDER_SITES.openfilm! }} actions={actions} status={connectionStatus} />
       </div>
       <div className="min-h-0 overflow-y-auto px-7 py-5">

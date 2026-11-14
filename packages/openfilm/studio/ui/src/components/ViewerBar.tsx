@@ -51,7 +51,7 @@ export function ViewerBar({
     <div className="grid h-10 shrink-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-2">
       {/* where we are is read constantly: body color, 12px; the length one step fainter. One line, never wrapped:
           when it does not fit, the length is clipped first. No hour field for a film under an hour. */}
-      <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] tabular-nums text-[var(--text)]">
+      <span className="framino-timecode min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] tabular-nums text-[var(--text)]">
         <LiveText clock={clock} timeMs={timeMs} format={(ms) => formatTimecode(ms, { hours })} />
         <span className="text-[11px] text-[var(--text-faint)]">
           {' / '}{formatTimecode(totalMs, { hours })}

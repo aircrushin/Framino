@@ -5,8 +5,8 @@
  * If any one pane changes its font size, colors, button box or spacing, the three bars stop
  * lining up, so the styles live in one place.
  */
-export const PANE_BAR = 'flex h-10 shrink-0 items-center gap-1 px-1.5';
-export const PANE_TITLE = 'min-w-0 truncate text-[12px] font-medium text-[var(--text-muted)]';
+export const PANE_BAR = 'framino-pane-bar flex h-10 shrink-0 items-center gap-1 px-1.5';
+export const PANE_TITLE = 'framino-pane-title min-w-0 truncate text-[12px] font-medium text-[var(--text-muted)]';
 export const PANE_BTN =
   'flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--text)]';
 export const PANE_BTN_ON = 'bg-[var(--bg-hover)] text-[var(--text)]';

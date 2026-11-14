@@ -74,7 +74,7 @@ if (!existsSync(join(SAMPLE, 'film.html'))) {
   body { margin: 0; width: 1920px; height: 1080px; background: #0b0d12; display: grid; place-items: center; }
   h1 { font: 700 120px system-ui, sans-serif; color: #fff; }
 </style>
-<h1 id="title">Hello, OpenFilm</h1>
+<h1 id="title">Hello, Framino</h1>
 <script type="module">
 const title = document.getElementById('title');
 window.film = {

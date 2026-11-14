@@ -38,7 +38,10 @@ export function BrandLoadingScreen({
     >
       {/* Kept small: an enlarged logo in the middle of the screen looks like a splash ad, while
           this screen only means "one moment". The bar below is what moves. */}
-      <span className="text-[var(--text)]"><BrandLogo size={34} /></span>
+      <span className="flex items-center gap-2 text-[var(--text)]">
+        <BrandLogo size={34} />
+        <span className="framino-wordmark !text-[22px]">framino</span>
+      </span>
 
       {labelKey ? (
         <p className="mt-6 text-[14px] font-medium tracking-[-0.01em] text-[var(--text)]">

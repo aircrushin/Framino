@@ -20,3 +20,6 @@ dist/
 # OS and editors
 .DS_Store
 *.log
+
+# Framino: this workspace's own notes and agent state, never shipped
+.workbuddy/

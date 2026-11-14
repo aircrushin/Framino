@@ -3,8 +3,8 @@
   "version": "0.3.2",
   "private": true,
   "type": "module",
-  "productName": "OpenFilm",
-  "description": "OpenFilm for desktop: Studio, with a chat beside it for Claude Code and Codex.",
+  "productName": "Framino",
+  "description": "Framino for desktop: Studio, with a chat beside it for Claude Code and Codex. A fork of OpenFilm.",
   "main": "src/main.mjs",
   "scripts": {
     "start": "node scripts/start.mjs",

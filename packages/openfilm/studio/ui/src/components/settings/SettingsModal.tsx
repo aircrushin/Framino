@@ -3,7 +3,7 @@
  * right as a page of titled groups. General (the theme and the language), Agents (in an app with a chat: the agents
  * it can use), Services (which model makes each kind of media, and the services connected for it), the keyboard
  * shortcuts, Advanced and Developer; the search finds a section by any phrase on it. At the
- * foot of the nav, quietly, where OpenFilm lives: its code, the examples and the website.
+ * foot of the nav, quietly, where Framino lives: its code, the examples and the website.
  */
 import React from 'react';
 import { createPortal } from 'react-dom';
@@ -28,14 +28,14 @@ import { LibraryCategoriesGroup } from './LibraryCategoriesGroup';
 
 export type SettingsSection = 'general' | 'agents' | 'models' | 'developer' | 'shortcuts' | 'advanced';
 
-/* the nav, in groups: what OpenFilm does, then help (Agents only inside an app with a chat: lib/host.ts `agents`;
+/* the nav, in groups: what Framino does, then help (Agents only inside an app with a chat: lib/host.ts `agents`;
    Advanced for what is already set for the best experience; Developer always, for its diagnostics) */
 const NAV: Array<{ group: 'settings' | 'help'; sections: SettingsSection[] }> = [
   { group: 'settings', sections: ['general', ...(studioHost?.agents ? ['agents' as const] : []), 'models'] },
   { group: 'help', sections: ['shortcuts', 'advanced', 'developer'] },
 ];
 
-/** where OpenFilm lives, linked at the foot of the nav */
+/** where Framino lives, linked at the foot of the nav */
 const LINKS = [
   { label: 'settings.links.github', href: 'https://github.com/openfilm/openfilm' },
   { label: 'settings.links.examples', href: 'https://github.com/openfilm/examples' },
@@ -389,7 +389,7 @@ function AboutGroup() {
   return (
     <SettingsGroup title={t('settings.about.group')}>
       <SettingsItem
-        title={info ? `OpenFilm ${info.version}` : 'OpenFilm'}
+        title={info ? `Framino ${info.version}` : 'Framino'}
         description={status}
         control={inApp || !info?.checking ? null : (
           <SettingsButton disabled={state === 'checking'} onClick={check}>{t('settings.about.check')}</SettingsButton>
@@ -487,7 +487,7 @@ function AppAboutGroup() {
   return (
     <SettingsGroup title={t('settings.about.group')}>
       <SettingsItem
-        title={`OpenFilm ${s?.version ?? ''}`.trim()}
+        title={`Framino ${s?.version ?? ''}`.trim()}
         badge={s?.channel === 'beta' ? <span className="rounded-full bg-[var(--bg-field)] px-2 py-0.5 text-[11.5px] text-[var(--text-muted)]">beta</span> : null}
         description={description}
         control={control}

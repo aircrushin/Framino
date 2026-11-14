@@ -7,11 +7,11 @@ const USAGE = `openfilm — a film is a function of time: given t, it draws that
   openfilm open    [folder | url]      start or open a project; Studio shows it to the person
   openfilm look    [what] [t | a-b]    check the film and draw it: a contact sheet with its sound and loudness
   openfilm render  [a-b]               the MP4, saved beside film.html
-  openfilm get     [what] [--options]  media: free from OpenFilm's library (music, sounds, transitions…), else a connected service
+  openfilm get     [what] [--options]  media: free from the bundled CC0 library (from the OpenFilm contributors), else a connected service
   openfilm canvas  [apply <steps>]     the canvas beside the edit: read it, or lay out notes, files and what to make on it
   openfilm skills                      the skills this film can be made with; \`openfilm skill <name>\` prints one
-  openfilm update                      the newest OpenFilm; Studio starts again on it
-  openfilm doctor                      what this computer has for OpenFilm, to paste into an issue
+  openfilm update                      the newest Framino; Studio starts again on it
+  openfilm doctor                      what this computer has for Framino, to paste into an issue
 
   Run with no arguments for the manual; \`openfilm <command> --help\` for one command's options; --version for the version.
   look, render, get and canvas work on the project around the current folder.
@@ -30,7 +30,7 @@ const COMMAND_HELP = {
   without  the project around the current folder, else the one opened last, else Studio's projects (where the
            person can start one). The current folder is never made a project: name it (.) for that.
 
-  Starts OpenFilm Studio if it is not running and prints its address. A Studio page already open, in any browser,
+  Starts Framino Studio if it is not running and prints its address. A Studio page already open, in any browser,
   switches to the project, and nothing more opens; otherwise open the address in your built-in browser, and if no
   page connects within 15 s, Studio opens the person's browser (OPENFILM_NO_BROWSER=1: never).`,
   skills: `openfilm skills
@@ -51,12 +51,12 @@ openfilm skill remove <name>
   Yours are kept in Skills/ beside the projects (~/Movies/OpenFilm/Skills on macOS; OPENFILM_SKILLS names another).`,
   update: `openfilm update
 
-  The newest OpenFilm from npm, and Studio started again on it once nothing is being exported or made; pages open on
+  The newest Framino from npm (the \`openfilm\` package), and Studio started again on it once nothing is being exported or made; pages open on
   it come back on the new version. The desktop app's Studio updates with the app, a source checkout with git pull:
   each is said instead.`,
   doctor: `openfilm doctor
 
-  Checks what OpenFilm needs here and prints a report to paste into an issue: OpenFilm's and Node's versions, the
+  Checks what Framino needs here and prints a report to paste into an issue: Framino's and Node's versions, the
   system, which agent ran the command, Studio, ffmpeg, the browser films are drawn in and its graphics, the data and
   projects folders, how much the projects' .film folders hold, npm, and the last errors in Studio's log. Paths under
   your home folder read ~; no keys, accounts or projects are in it. Exit status 1 when something needs fixing; the

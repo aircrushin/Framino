@@ -155,10 +155,10 @@ that path every time, as its manual does, not as \`openfilm\` (your shell may fi
 \`npx openfilm\`, whatever a skill says.`
     : `Use the \`openfilm\` command on your PATH (this app's own, on the Studio beside you), not
 \`npx openfilm\`, whatever a skill says.`;
-  return `You are working inside OpenFilm, a desktop app for making videos. Beside this chat the person sees OpenFilm Studio,
+  return `You are working inside Framino, a desktop app for making videos. Beside this chat the person sees Framino Studio,
 the video editor, showing the project in your working directory; it updates live as you save files.
 
-The project is an OpenFilm film: pages with window.film, cut together by film.html. Before you change anything, run
+The project is a Framino film: pages with window.film, cut together by film.html. Before you change anything, run
 \`${run}\` with no arguments and read the manual it prints; follow it. ${which} Studio is already open on this
 project: you never need \`${run} open\` and never open Studio in a browser, and the person exports the film from it.
 Run \`${run} look\` after each change to see what you made. Reply in the language the person writes in.
@@ -172,8 +172,8 @@ export const INSTRUCTIONS = agentInstructions();
  * The app's own agent's whole system prompt, in place of Pi's (a coding assistant's, with Pi's own docs): who it is,
  * where it is and how it talks with the person (agent-prompt.md: written for it, so not INSTRUCTIONS, which tell
  * another agent to go and read the manual), and how the person points at Studio (STUDIO_REFERENCES). How a film is
- * made is OpenFilm's skills' (openfilm/skills coreSkills), which Pi lists after it and the agent reads when a task
- * needs one. `edit` false: the person turned OpenFilm's `edit` off, so the prompt does not send the agent to it.
+ * made is Framino's skills' (openfilm/skills coreSkills), which Pi lists after it and the agent reads when a task
+ * needs one. `edit` false: the person turned Framino's `edit` off, so the prompt does not send the agent to it.
  */
 export function ownAgentPrompt({ edit = true } = {}) {
   const read = readFileSync(new URL('./agent-prompt.md', import.meta.url), 'utf8').trim();
@@ -393,7 +393,7 @@ export async function diagnoseAgent(id, { appVersion = '' } = {}) {
   const chosen = chosenPaths[id] ?? null;
   const hint = found ? null : chosen ? 'chosen-missing' : wsl ? 'wsl' : report.files.length ? 'unusable' : 'none';
   const lines = [
-    `OpenFilm ${appVersion}`.trim(),
+    `Framino ${appVersion}`.trim(),
     `Agent: ${spec.label} (${names.join(', ')})`,
     `System: ${process.platform} ${release()} ${arch()}`,
     `PATH from: ${lastPathSource() ?? 'unknown'}`,
@@ -887,7 +887,7 @@ export const CLIENT_CAPABILITIES = {
   _meta: { parameterizedModelPicker: true, jetbrains: { air: { version: 1, capabilities: ['recommendedValue'] } } },
 };
 
-const CLIENT_INFO = { name: 'openfilm-desktop', title: 'OpenFilm', version: '0.1.0' };
+const CLIENT_INFO = { name: 'openfilm-desktop', title: 'Framino', version: '0.1.0' };
 
 /** How long an agent may wait on its model with nothing coming before the turn is stopped. */
 const MODEL_STALL_MS = 5 * 60_000;
@@ -918,7 +918,7 @@ export const ANTIGRAVITY_TESTED = '1.5.1';
 
 /**
  * The oldest Claude Code the chat was tried with. An older one lists only the models it knows: 2.1.288 has no Haiku
- * 5.5, which 2.1.308 has (#230), and the person takes that for OpenFilm's or the service's doing. Never above npm's
+ * 5.5, which 2.1.308 has (#230), and the person takes that for Framino's or the service's doing. Never above npm's
  * `stable`, which the Claude app, the Homebrew cask and `claude update` follow: else most are told to update with
  * nothing to update to.
  */
@@ -947,11 +947,11 @@ export function codexTooOld(agent, path, e, versionOf = codexVersion) {
   const version = versionOf(path);
   if (!version || !laterVersion(CODEX_TESTED, version)) return e;
   const why = e instanceof Error ? e.message : String(e);
-  return Object.assign(new Error(`Codex ${version} is older than OpenFilm needs (${CODEX_TESTED} or later): update Codex, then try again. ${why}`.trim()), { code: 'outdated' });
+  return Object.assign(new Error(`Codex ${version} is older than Framino needs (${CODEX_TESTED} or later): update Codex, then try again. ${why}`.trim()), { code: 'outdated' });
 }
 
 /**
- * An Antigravity older than the ACP release tried with OpenFilm.
+ * An Antigravity older than the ACP release tried with Framino.
  * @param {string} agent @param {string | undefined} path @param {any} e @param {(file: string) => string | null} [versionOf]
  */
 export function antigravityTooOld(agent, path, e, versionOf = antigravityVersion) {
@@ -959,7 +959,7 @@ export function antigravityTooOld(agent, path, e, versionOf = antigravityVersion
   const version = versionOf(path);
   if (!version || !laterVersion(ANTIGRAVITY_TESTED, version)) return e;
   const why = e instanceof Error ? e.message : String(e);
-  return Object.assign(new Error(`Google Antigravity ${version} is older than OpenFilm needs (${ANTIGRAVITY_TESTED} or later): update agy, then try again. ${why}`.trim()), { code: 'outdated' });
+  return Object.assign(new Error(`Google Antigravity ${version} is older than Framino needs (${ANTIGRAVITY_TESTED} or later): update agy, then try again. ${why}`.trim()), { code: 'outdated' });
 }
 
 /** ACP's internal error: what an agent's own failures come as. */
@@ -1173,7 +1173,7 @@ export class AgentSession {
    *           onSend?: (sent: { prompt: any[], _meta?: any }) => void, stallMs?: number, answerOnly?: boolean }} opts
    * `onSend` hears each message as it goes to the agent, whole (the app's words before the first one's, for an agent
    * told them there); `opened`, once started, says what it was started and opened with.
-   * `skills`: the session has its maker's skills and MCP servers, OpenFilm's skills, and of the person's own only those
+   * `skills`: the session has its maker's skills and MCP servers, Framino's skills, and of the person's own only those
    * let in (`allowed`, `mcpAllowed`), each agent told by its own switch (agent-skills.mjs); `opened.skills` says how.
    * `stallMs`: how long the agent may wait on its model with nothing coming (MODEL_STALL_MS) before the turn is stopped.
  * `answerOnly`: it may only answer (Studio's own questions): every permission it asks is refused, even what the app
@@ -1186,7 +1186,7 @@ export class AgentSession {
     if (HARNESS_AGENTS.includes(opts.agent) && !opts.harness) throw Object.assign(new Error('Connect this agent in Settings → Agents first.'), { code: 'not-ready' });
     this.opts = opts;
     /* the app's own agent runs Pi (pi-agent.mjs), the person's their own program through its adapter */
-    this.spec = HARNESS_AGENTS.includes(opts.agent) ? { label: opts.agent === 'openfilm' ? 'OpenFilm' : 'Own key', env: () => ({}) } : AGENTS[opts.agent];
+    this.spec = HARNESS_AGENTS.includes(opts.agent) ? { label: opts.agent === 'openfilm' ? 'Framino' : 'Own key', env: () => ({}) } : AGENTS[opts.agent];
     this.sessionId = null;
     this.info = null;
     this.stderr = '';
@@ -1256,7 +1256,7 @@ export class AgentSession {
       ...harness.env,
       OPENFILM_GET_WEB: '1',
     };
-    /* its skills and MCP servers: its maker's, OpenFilm's skills, and the person's own only those let in (agent-skills.mjs) */
+    /* its skills and MCP servers: its maker's, Framino's skills, and the person's own only those let in (agent-skills.mjs) */
     const skills = this.opts.skills
       ? await sessionSkills(this.opts.agent, { cwd: this.opts.cwd, env: shell, ...this.opts.skills }).catch(() => null) : null;
     if (harness) own.OPENFILM_PI = JSON.stringify({ agentDir: harness.home, models: harness.models, model: harness.model, systemPrompt: ownAgentPrompt({ edit: skills?.piSkills?.names.includes('edit') ?? true }), skills: skills?.piSkills ?? null });

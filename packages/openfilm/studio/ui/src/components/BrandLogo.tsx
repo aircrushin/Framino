@@ -1,25 +1,19 @@
-import React from 'react';
-
 /*
- * The mark: a playhead over two clips, forming an F, in the surrounding text's color. The clips are cut away around
- * the playhead (a real gap, so whatever is behind shows through), which keeps the playhead's shape in one color.
+ * Framino mark: a single lowercase `f`, drawn as two quiet strokes — an ascender that curves at the top and one
+ * crossbar. No robot, wand, star or brain; no gradients. It inherits the surrounding text color so it sits in a
+ * toolbar, a menu or a loading screen without its own palette.
  */
-const VIEWBOX = '8 6 84 92';
-const PLAYHEAD = 'M17 12H37Q40 12 40 15V27Q40 29 38.5 30.5L31 37V88Q31 92 27 92Q23 92 23 88V37L15.5 30.5Q14 29 14 27V15Q14 12 17 12Z';
+const VIEWBOX = '0 0 28 28';
+const ASCENDER = 'M11 24V10a3.5 3.5 0 0 1 3.5-3.5h2.5';
+const CROSSBAR = 'M7.5 14h10';
 
-export function BrandLogo({ size = 18 }: { size?: number }) {
-  const gap = `openfilm-gap-${React.useId().replace(/:/g, '')}`;
+export function BrandLogo({ size = 18, className = 'block shrink-0' }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox={VIEWBOX} fill="currentColor" className="block shrink-0" role="img" aria-label="OpenFilm">
-      <mask id={gap} maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
-        <rect width="100" height="100" fill="#fff" />
-        <path d={PLAYHEAD} stroke="#000" strokeWidth="7" strokeLinejoin="round" />
-      </mask>
-      <g mask={`url(#${gap})`}>
-        <rect x="22" y="12" width="64" height="20" rx="5" />
-        <rect x="25" y="44" width="47" height="19" rx="5" />
+    <svg width={size} height={size} viewBox={VIEWBOX} className={className} fill="none" role="img" aria-label="Framino">
+      <g stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d={ASCENDER} />
+        <path d={CROSSBAR} />
       </g>
-      <path d={PLAYHEAD} />
     </svg>
   );
 }

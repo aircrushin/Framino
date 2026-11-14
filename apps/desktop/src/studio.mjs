@@ -34,8 +34,8 @@ function readAccount(child, { fresh = false } = {}) {
     const receive = (message) => {
       if (message?.type === 'account' && message.id === id) finish(message.error ? new Error(message.error) : null, message.account);
     };
-    const exited = () => finish(new Error('Studio stopped while reading the OpenFilm account.'));
-    const timer = setTimeout(() => finish(new Error('Studio did not answer about the OpenFilm account.')), 8000);
+    const exited = () => finish(new Error('Studio stopped while reading the Framino account.'));
+    const timer = setTimeout(() => finish(new Error('Studio did not answer about the Framino account.')), 8000);
     child.on('message', receive);
     child.once('exit', exited);
     child.postMessage({ type: 'account:read', id, fresh });
@@ -88,7 +88,7 @@ async function takeOver(home, log) {
 function fork({ port, env, onOpen, onBrowser, onAsk, log }) {
   return new Promise((resolve, reject) => {
     const child = utilityProcess.fork(ENTRY, [], {
-      serviceName: 'OpenFilm Studio',
+      serviceName: 'Framino Studio',
       env: { ...env, OPENFILM_STUDIO_PORT: String(port) },
       stdio: 'pipe',
     });

@@ -22,14 +22,63 @@
    Clips on the timeline by kind, one quiet color each at one lightness, under white words; their waveforms are drawn
    lighter over it. Sounds of all kinds are one color. */
 
+/* ── Framino design tokens ────────────────────────────────────────────────────────────────────────────────────────
+
+   Two families, deliberately separate:
+
+   --brand-*        the identity. Sage / forest / mint / cream. Used on non-editor surfaces (the launcher, projects,
+                    about, documentation, marketing), never as a large field inside the editing workspace.
+   --studio-*       the professional dark editing room. Deep grey-black surfaces separated by one-pixel lines,
+                    restrained text, and a single sage-green accent reserved for selection, active controls and
+                    the playhead.
+
+   Every legacy token below (--bg-*, --text-*, --accent, --clip-*, --tl-*, --cv-*) is still consumed by the
+   original components. They are aliased to the studio tokens so no component or layout calculation has to change.
+   No new component library, no framework upgrade, no hardcoded colors added to the editor itself. */
+
 :root {
+  /* Brand identity */
+  --brand-sage: #64836d;
+  --brand-forest: #34483a;
+  --brand-mint: #dce9dd;
+  --brand-cream: #f5f7f1;
+  --brand-white: #ffffff;
+
+  /* Professional Dark Editorial Studio */
+  --studio-bg: #181a19;
+  --studio-panel: #202321;
+  --studio-elevated: #282c29;
+  --studio-border: #353a36;
+
+  --studio-text-primary: #e5e8e4;
+  --studio-text-secondary: #a0a7a1;
+  --studio-text-muted: #707a72;
+
+  --studio-accent: #8ba58e;
+  --studio-accent-active: #a5bfa6;
+  --studio-selection: #344b39;
+
+  --track-video: #557d69;
+  --track-audio: #9b835c;
+  --track-text: #718ba5;
+  --track-image: #8b79a2;
+
+  --state-success: #79a98a;
+  --state-warning: #d2a66f;
+  --state-error: #d47777;
+
+  /* Typography: Inter for English, the system CJK stack for Chinese. Repository font resources only. */
   --font-cjk-sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', 'Source Han Sans SC',
     'Heiti SC', sans-serif;
   --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
     Arial, var(--font-cjk-sans);
   --font-mono: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --studio-timecode-font: var(--font-mono);
 
-  --radius-lg: 16px;
+  /* Restrained geometry: a professional tool uses hairlines and small radii, not cards. */
+  --radius-lg: 6px;
+  --studio-radius: 3px;
+  --studio-hairline: 1px solid var(--studio-border);
   --bg-topbar-popover: var(--bg-raised);
 
   /* a host window's controls (lib/host.ts); nothing to make room for in a browser */
@@ -37,155 +86,146 @@
   --titlebar-right-x: 0px;
 }
 
-/* ── Light (default) ── */
+/* ── Light (non-editor / brand surfaces) ── */
 :root,
 [data-theme='light'] {
   color-scheme: light;
 
-  --bg-app: #e4e4e8;
-  --bg-titlebar: var(--bg-app);
-  --bg-panel: #fbfbfc;
-  --bg-raised: #ffffff;
-  /* the viewer's pane, round the picture: the panels' own white (rgb 251, 251, 252) */
-  --bg-viewer: #fbfbfc;
-  /* the one-pixel lines between the panes and under the top bar (the board under them showing through) */
-  --dock-line: #d2d2d8;
-  --bg-field: rgba(16, 16, 24, 0.055);
-  --bg-hover: rgba(16, 16, 24, 0.05);
-  --bg-pressed: rgba(16, 16, 24, 0.09);
-  --bg-selected: rgba(0, 163, 174, 0.13);
+  --bg-app: #edefe9;
+  --bg-titlebar: var(--brand-cream);
+  --bg-panel: var(--brand-cream);
+  --bg-raised: var(--brand-white);
+  --bg-viewer: #e9ede7;
+  --dock-line: #d5ded3;
+  --bg-field: rgba(52, 72, 58, 0.055);
+  --bg-hover: rgba(52, 72, 58, 0.05);
+  --bg-pressed: rgba(52, 72, 58, 0.1);
+  --bg-selected: rgba(100, 131, 109, 0.16);
 
-  --text: #161619;
-  --text-muted: #5d5d63;
-  --text-faint: #8b8b92;
+  --text: #1b231d;
+  --text-muted: #526054;
+  --text-faint: #7d8a7f;
 
-  --border: rgba(16, 16, 24, 0.085);
-  --border-strong: rgba(16, 16, 24, 0.16);
+  --border: rgba(52, 72, 58, 0.12);
+  --border-strong: rgba(52, 72, 58, 0.22);
 
-  --primary: #161619;
-  --primary-hover: #2e2e33;
+  --primary: #1b231d;
+  --primary-hover: #34483a;
   --on-primary: #ffffff;
 
-  --accent: #0098a3;
-  --accent-soft: rgba(0, 163, 174, 0.12);
+  --accent: var(--brand-sage);
+  --accent-soft: rgba(100, 131, 109, 0.14);
   --on-accent: #ffffff;
-  /* a switch turned on: the accent a step quieter, so a page of them does not glare */
-  --switch-on: #26b0ba;
-  /* what is picked among choices (tabs, a rail, a list): the accent's words on the accent's own tint, never a grey
-     that reads as merely pointed at */
-  --bg-picked: rgba(0, 163, 174, 0.14);
-  /* words selected in a field */
-  --text-selection: rgba(0, 163, 174, 0.24);
+  --switch-on: var(--brand-sage);
+  --bg-picked: rgba(100, 131, 109, 0.15);
+  --text-selection: rgba(100, 131, 109, 0.24);
 
-  --ok: #1f8a4c;
-  --warn: #b25e00;
-  --err: #d1342f;
+  --ok: #3f7a54;
+  --warn: #9a6a26;
+  --err: #a54545;
 
-  --shadow-sm: 0 1px 2px rgba(16, 16, 24, 0.05), 0 1px 3px rgba(16, 16, 24, 0.05);
-  --shadow-lg: 0 12px 32px rgba(16, 16, 24, 0.1), 0 4px 8px rgba(16, 16, 24, 0.05);
+  --shadow-sm: 0 1px 2px rgba(52, 72, 58, 0.06), 0 1px 3px rgba(52, 72, 58, 0.05);
+  --shadow-lg: 0 12px 32px rgba(52, 72, 58, 0.12), 0 4px 8px rgba(52, 72, 58, 0.06);
 
-  --clip-video: #54789d;
-  --clip-image: #497c93;
-  --clip-page: #7968a8;
-  --clip-text: #b5703d;
-  --clip-sticker: #3d8a5c;
-  --clip-filter: #6a5bbf;
-  --clip-effect: #a8538a;
-  --clip-audio: #318383;
+  --clip-video: #557d69;
+  --clip-image: #8b79a2;
+  --clip-page: #6b7c86;
+  --clip-text: #718ba5;
+  --clip-sticker: #6f8878;
+  --clip-filter: #7a7c9a;
+  --clip-effect: #8e7a94;
+  --clip-audio: #9b835c;
 
-  /* the timeline's own: a well (meters), the playhead and the frame of a picked clip, and waveforms drawn lighter
-     over a clip's own color (canvas reads these back from the element) */
-  --tl-lane: #f1f1f3;
-  /* a track's band, the ground seen in the gaps between two (the panel itself), and the track of a picked clip: the
-     panel a quiet step darker (lighter in dark), the picked one a step further */
-  --tl-row: rgba(16, 16, 24, 0.03);
+  --tl-lane: #e9ede7;
+  --tl-row: rgba(52, 72, 58, 0.035);
   --tl-gap: var(--bg-panel);
-  --tl-lane-on: rgba(16, 16, 24, 0.07);
-  --tl-playhead: #161619;
-  --tl-select: #161619;
+  --tl-lane-on: rgba(52, 72, 58, 0.075);
+  --tl-playhead: var(--brand-sage);
+  --tl-select: var(--brand-sage);
   --tl-wave: rgba(255, 255, 255, 0.5);
   --tl-wave-band: rgba(255, 255, 255, 0.4);
-  /* the part of a waveform a clip's volume pushes past full scale: it will distort */
   --tl-wave-clip: var(--err);
 
-  --folder-back: #c9c9c9;
-  --folder-front: #dedede;
-  --folder-front-hi: #ececec;
+  --folder-back: #c9d1c8;
+  --folder-front: #dbe2d9;
+  --folder-front-hi: #edf1ea;
 
-  --brand-wind-from: #2f9e63;
-  --brand-wind-mid: #3cbc93;
-  --brand-wind-to: #55bfd0;
+  --brand-wind-from: var(--brand-forest);
+  --brand-wind-mid: var(--brand-sage);
+  --brand-wind-to: var(--brand-mint);
 }
 
-/* ── Dark ── */
+/* ── Dark: the Framino Studio editing room ── */
 [data-theme='dark'] {
   color-scheme: dark;
 
-  /* the window's ground (rgb 20): what shows between the panes; every pane's inside, its top bars, the viewer round
-     the picture and the canvas's board among them, the panels' (rgb 24) */
-  --bg-app: #141414;
-  --bg-titlebar: #202020;
-  --bg-panel: #181818;
-  --bg-raised: #202020;
-  --bg-viewer: #181818;
-  --dock-line: #000000;
-  --bg-field: rgba(255, 255, 255, 0.08);
-  --bg-hover: rgba(255, 255, 255, 0.06);
-  --bg-pressed: rgba(255, 255, 255, 0.12);
-  --bg-selected: rgba(0, 193, 205, 0.16);
+  /* surfaces: a deep grey-black ground, panels one step up, elevated one step further; never pure black */
+  --bg-app: var(--studio-bg);
+  --bg-titlebar: #1b1e1c;
+  --bg-panel: var(--studio-panel);
+  --bg-raised: var(--studio-elevated);
+  /* the monitor well around the picture: the darkest thing in the room, but not pure black */
+  --bg-viewer: #141614;
+  --dock-line: var(--studio-border);
+  --bg-field: rgba(229, 232, 228, 0.05);
+  --bg-hover: rgba(229, 232, 228, 0.055);
+  --bg-pressed: rgba(229, 232, 228, 0.1);
+  --bg-selected: var(--studio-selection);
 
-  --text: #e6e6e6;
-  --text-muted: #a3a3a3;
-  --text-faint: #717177;
+  --text: var(--studio-text-primary);
+  --text-muted: var(--studio-text-secondary);
+  --text-faint: var(--studio-text-muted);
 
-  --border: rgba(240, 240, 255, 0.075);
-  --border-strong: rgba(240, 240, 255, 0.15);
+  --border: rgba(229, 232, 228, 0.09);
+  --border-strong: var(--studio-border);
 
-  --primary: #ebebed;
+  --primary: var(--studio-text-primary);
   --primary-hover: #ffffff;
-  --on-primary: #0a0a0c;
+  --on-primary: #141614;
 
-  /* what is picked: words in this cyan, plainly apart from the others' white */
-  --accent: #00c1cd;
-  --accent-soft: rgba(0, 193, 205, 0.14);
-  --on-accent: #00262a;
-  --switch-on: #009aa4;
-  --bg-picked: rgba(0, 193, 205, 0.16);
-  --text-selection: rgba(0, 193, 205, 0.3);
+  /* brand green is only for selected / active / primary actions and the playhead */
+  --accent: var(--studio-accent);
+  --accent-soft: rgba(139, 165, 142, 0.14);
+  --on-accent: #121713;
+  --switch-on: var(--brand-sage);
+  --bg-picked: rgba(139, 165, 142, 0.15);
+  --text-selection: rgba(139, 165, 142, 0.3);
 
-  --ok: #4cc27a;
-  --warn: #f0b03c;
-  --err: #f2665f;
+  --ok: var(--state-success);
+  --warn: var(--state-warning);
+  --err: var(--state-error);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32), 0 1px 3px rgba(0, 0, 0, 0.28);
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.3);
 
-  --clip-video: #354f6a;
-  --clip-image: #2e5363;
-  --clip-page: #504472;
-  --clip-text: #7f4d28;
-  --clip-sticker: #24603e;
-  --clip-filter: #4b3f96;
-  --clip-effect: #74365f;
-  --clip-audio: #1c5757;
+  /* low-saturation track colors, readable white words on top */
+  --clip-video: var(--track-video);
+  --clip-audio: var(--track-audio);
+  --clip-text: var(--track-text);
+  --clip-image: var(--track-image);
+  --clip-page: #6b7c86;
+  --clip-sticker: #6f8878;
+  --clip-filter: #7a7c9a;
+  --clip-effect: #8e7a94;
 
-  --tl-lane: #151518;
-  --tl-row: rgba(240, 240, 255, 0.035);
+  --tl-lane: #1c1f1d;
+  --tl-row: rgba(229, 232, 228, 0.03);
   --tl-gap: var(--bg-panel);
-  --tl-lane-on: rgba(240, 240, 255, 0.085);
-  --tl-playhead: #ffffff;
-  --tl-select: #ffffff;
-  --tl-wave: rgba(255, 255, 255, 0.4);
-  --tl-wave-band: rgba(255, 255, 255, 0.32);
+  --tl-lane-on: rgba(229, 232, 228, 0.07);
+  /* the playhead carries the brand green, as does a picked clip's frame */
+  --tl-playhead: var(--studio-accent-active);
+  --tl-select: var(--studio-accent-active);
+  --tl-wave: rgba(255, 255, 255, 0.38);
+  --tl-wave-band: rgba(255, 255, 255, 0.26);
   --tl-wave-clip: var(--err);
 
-  --folder-back: #3a3a3a;
-  --folder-front: #4d4d4d;
-  --folder-front-hi: #5a5a5a;
+  --folder-back: #3a403b;
+  --folder-front: #4c534d;
+  --folder-front-hi: #5b635c;
 
-  --brand-wind-from: #5ecb92;
-  --brand-wind-mid: #66d8b8;
-  --brand-wind-to: #7fd3e4;
+  --brand-wind-from: var(--brand-forest);
+  --brand-wind-mid: var(--brand-sage);
+  --brand-wind-to: var(--studio-accent);
 }
 
 * {
@@ -529,7 +569,8 @@ body.tl-pinning, body.tl-pinning * { cursor: crosshair !important; }
 }
 .stage {
   position: relative;
-  background: #000;
+  /* the monitor well: near-black dark grey, never pure black; the film keeps its own aspect ratio */
+  background: #101210;
   /* handles of what is selected reach past the picture's edge */
   overflow: visible;
 }
@@ -537,7 +578,7 @@ body.tl-pinning, body.tl-pinning * { cursor: crosshair !important; }
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #000;
+  background: #101210;
 }
 .stage iframe {
   position: absolute;
@@ -559,8 +600,8 @@ body.tl-pinning, body.tl-pinning * { cursor: crosshair !important; }
   text-align: center;
   padding: 16px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  background: #000;
+  color: rgba(229, 232, 228, 0.6);
+  background: #101210;
   z-index: 3;
 }
 
@@ -587,61 +628,61 @@ html[data-file-drag] iframe { pointer-events: none; }
    main button white. A wire is grey, and blue and moving while it is the selected node's. */
 :root,
 [data-theme='light'] {
-  --cv-bg: #f4f4f5;
-  --cv-dot: #c9c9cd;
-  --cv-card: #ffffff;
-  --cv-card-2: #f1f1f2;
-  --cv-line: #d4d4d8;
-  --cv-line-hover: #b4b4ba;
-  --cv-ring: #5c5c62;
-  --cv-label: #77777d;
-  --cv-ghost: #c4c4c8;
-  --cv-ink: #111113;
-  --cv-ink-2: rgba(17, 17, 19, 0.6);
-  --cv-ink-3: rgba(17, 17, 19, 0.32);
-  --cv-edge: #b4b4ba;
-  --cv-edge-lit: #3b82f6;
-  --cv-float: #ffffff;
-  --cv-float-line: rgba(0, 0, 0, 0.08);
-  --cv-float-hover: rgba(0, 0, 0, 0.05);
-  --cv-chip: rgba(0, 0, 0, 0.05);
-  --cv-bar: #ffffff;
-  --cv-bar-line: #e4e4e7;
-  --cv-invert: #111113;
-  --cv-on-invert: #ffffff;
+  --cv-bg: #e9ede7;
+  --cv-dot: #c3cec2;
+  --cv-card: var(--brand-cream);
+  --cv-card-2: #e5eae3;
+  --cv-line: #cbd4ca;
+  --cv-line-hover: #a9b8a8;
+  --cv-ring: #526054;
+  --cv-label: #6d7a6f;
+  --cv-ghost: #b6c2b5;
+  --cv-ink: #1b231d;
+  --cv-ink-2: rgba(27, 35, 29, 0.6);
+  --cv-ink-3: rgba(27, 35, 29, 0.32);
+  --cv-edge: #a9b8a8;
+  --cv-edge-lit: var(--brand-sage);
+  --cv-float: var(--brand-white);
+  --cv-float-line: rgba(52, 72, 58, 0.1);
+  --cv-float-hover: rgba(52, 72, 58, 0.05);
+  --cv-chip: rgba(52, 72, 58, 0.055);
+  --cv-bar: var(--brand-cream);
+  --cv-bar-line: #d5ded3;
+  --cv-invert: #1b231d;
+  --cv-on-invert: var(--brand-white);
   --cv-shadow: none;
-  --cv-float-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06), 0 16px 24px -8px rgba(0, 0, 0, 0.1), 0 4px 8px -4px rgba(0, 0, 0, 0.06);
-  --cv-modal: #ffffff;
-  --cv-group: rgba(0, 0, 0, 0.08);
+  --cv-float-shadow: inset 0 0 0 1px rgba(52, 72, 58, 0.07), 0 16px 24px -8px rgba(52, 72, 58, 0.12), 0 4px 8px -4px rgba(52, 72, 58, 0.06);
+  --cv-modal: var(--brand-white);
+  --cv-group: rgba(52, 72, 58, 0.08);
 }
 [data-theme='dark'] {
-  /* the board is a pane's inside, the panels' grey (rgb 24), as everything on it and over it; a group a step up */
-  --cv-bg: #181818;
-  --cv-dot: #474747;
-  --cv-card: #181818;
-  --cv-card-2: #181818;
-  --cv-line: #525252;
-  --cv-line-hover: #6b6b6b;
-  --cv-ring: #a8a8a8;
-  --cv-label: #919191;
-  --cv-ghost: #525252;
-  --cv-ink: #ffffff;
-  --cv-ink-2: rgba(255, 255, 255, 0.6);
-  --cv-ink-3: rgba(255, 255, 255, 0.3);
-  --cv-edge: #6b6b6b;
-  --cv-edge-lit: #3b82f6;
-  --cv-float: #181818;
-  --cv-float-line: rgba(255, 255, 255, 0.08);
-  --cv-float-hover: rgba(255, 255, 255, 0.07);
-  --cv-chip: rgba(255, 255, 255, 0.05);
-  --cv-bar: #181818;
-  --cv-bar-line: #363636;
-  --cv-invert: #ffffff;
-  --cv-on-invert: #000000;
+  /* the canvas board uses the same room as the editor: no separate visual language */
+  --cv-bg: var(--studio-bg);
+  --cv-dot: #3c423d;
+  --cv-card: var(--studio-panel);
+  --cv-card-2: var(--studio-panel);
+  --cv-line: var(--studio-border);
+  --cv-line-hover: #4a514b;
+  --cv-ring: var(--studio-accent);
+  --cv-label: var(--studio-text-secondary);
+  --cv-ghost: var(--studio-border);
+  --cv-ink: var(--studio-text-primary);
+  --cv-ink-2: rgba(229, 232, 228, 0.6);
+  --cv-ink-3: rgba(229, 232, 228, 0.3);
+  --cv-edge: #4a514b;
+  --cv-edge-lit: var(--studio-accent);
+  --cv-float: var(--studio-elevated);
+  --cv-float-line: var(--studio-border);
+  --cv-float-hover: rgba(229, 232, 228, 0.06);
+  --cv-chip: rgba(229, 232, 228, 0.05);
+  --cv-bar: var(--studio-panel);
+  --cv-bar-line: var(--studio-border);
+  --cv-invert: var(--studio-text-primary);
+  --cv-on-invert: var(--studio-bg);
   --cv-shadow: none;
-  --cv-float-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 24px -8px rgba(0, 0, 0, 0.06), 0 4px 8px -4px rgba(0, 0, 0, 0.04);
-  --cv-modal: #181818;
-  --cv-group: rgba(255, 255, 255, 0.08);
+  --cv-float-shadow: inset 0 0 0 1px var(--studio-border), 0 16px 24px -8px rgba(0, 0, 0, 0.4), 0 4px 8px -4px rgba(0, 0, 0, 0.28);
+  --cv-modal: var(--studio-elevated);
+  --cv-group: rgba(229, 232, 228, 0.07);
 }
 .openfilm-canvas {
   --cv-card-radius: 8px;
@@ -706,3 +747,89 @@ html[data-file-drag] iframe { pointer-events: none; }
 .workspace-resize-handle[aria-orientation='vertical']::after { top:0; bottom:0; left:calc(50% - .5px); width:1px; }
 .workspace-resize-handle[aria-orientation='horizontal']::after { left:0; right:0; top:calc(50% - .5px); height:1px; }
 .workspace-resize-handle:focus-visible::after { background:var(--accent); }
+
+/* ── Framino Studio: the professional shell ─────────────────────────────────────────────────────────────────────
+
+   Additive rules only. They dress the existing panes and controls; they never replace a layout calculation,
+   a data attribute, a drag handler or a keyboard shortcut. One-pixel separators, no big cards, no gradients. */
+
+/* the compact top toolbar keeps the geometry the workspace already measures (HOST_PANEL_TOP = 32) */
+[data-titlebar] {
+  background: var(--bg-titlebar);
+  border-bottom: 1px solid var(--studio-border);
+}
+[data-workspace-timeline] { border-top: 1px solid var(--studio-border); }
+[data-workspace-inspector] { border-left: 1px solid var(--studio-border); }
+[data-workspace-layers] { border-right: 1px solid var(--studio-border); }
+
+/* shared pane bars: small editorial labels, a hairline underneath, aligned across all three panes */
+.framino-pane-bar {
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+.framino-pane-title {
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  font-weight: 600;
+  color: var(--studio-text-secondary);
+}
+
+/* precise numeric reading in the monitor, the ruler and the inspector */
+.framino-numeric,
+.framino-timecode {
+  font-family: var(--studio-timecode-font);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.015em;
+}
+
+/* the lowercase wordmark: quiet, light, no icon gimmicks */
+.framino-wordmark {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  color: var(--studio-text-primary);
+  user-select: none;
+}
+.framino-wordmark-mark { color: var(--studio-accent-active); }
+
+/* the primary action in the toolbar: the only filled control, and only in the brand green */
+.framino-primary-action {
+  background: var(--brand-sage);
+  color: #10140f;
+  border: 1px solid var(--studio-accent);
+  border-radius: var(--studio-radius);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.framino-primary-action:hover { background: var(--studio-accent); }
+.framino-primary-action:disabled { background: var(--bg-field); color: var(--text-faint); border-color: var(--border); }
+
+/* selection and hover: a clear edge, never a glow */
+[data-theme='dark'] [data-framino-selected='true'] {
+  outline: 1px solid var(--studio-accent-active);
+  outline-offset: -1px;
+}
+[data-theme='dark'] .framino-surface {
+  background: var(--studio-panel);
+  border: 1px solid var(--studio-border);
+  border-radius: var(--studio-radius);
+}
+
+/* thin, quiet scrollbars throughout the editing room */
+[data-theme='dark'] ::-webkit-scrollbar { width: 8px; height: 8px; }
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: var(--studio-border);
+  border-radius: 0;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover { background: var(--studio-text-muted); background-clip: padding-box; }
+
+/* keyboard focus stays visible and uses the same restrained accent */
+html[data-focus-nav='tab'] :where(a, button, [role='button'], select, summary):focus-visible {
+  outline: 1px solid var(--studio-accent-active);
+  outline-offset: 1px;
+  border-radius: var(--studio-radius);
+}

@@ -47,7 +47,7 @@ parent.on('message', ({ data }) => {
   if (data?.type === 'account:read') {
     void desktopAccount({ fresh: data.fresh === true }).then(
       (account) => send({ type: 'account', id: data.id, account }),
-      () => send({ type: 'account', id: data.id, error: 'The OpenFilm account could not be read.' }),
+      () => send({ type: 'account', id: data.id, error: 'The Framino account could not be read.' }),
     );
   }
 });

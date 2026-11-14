@@ -155,10 +155,10 @@ export async function ensureStudio(say = () => {}, { fresh = false } = {}) {
   let pages = 0;
   if (found) {
     const older = olderThanThis(found.version);
-    say(older ? `Updating OpenFilm Studio to ${VERSION}…` : 'Restarting OpenFilm Studio…');
+    say(older ? `Updating Framino Studio to ${VERSION}…` : 'Restarting Framino Studio…');
     const replaced = await replace(found);
     if ('stays' in replaced) {
-      say(`OpenFilm Studio keeps running: ${replaced.stays}`);
+      say(`Framino Studio keeps running: ${replaced.stays}`);
       return found;
     }
     pages = replaced.pages;
@@ -170,7 +170,7 @@ export async function ensureStudio(say = () => {}, { fresh = false } = {}) {
   let exited = /** @type {number | null} */ (null);
   child.once('exit', (code) => { exited = code ?? 1; });
   child.unref();
-  if (!found) say('Starting OpenFilm Studio…');
+  if (!found) say('Starting Framino Studio…');
   const deadline = Date.now() + 20_000;
   while (Date.now() < deadline) {
     const up = await running();
@@ -196,7 +196,7 @@ export async function ensureStudio(say = () => {}, { fresh = false } = {}) {
 export async function updateOpenfilm(say = () => {}) {
   if (FROM_SOURCE) return { ok: true, lines: [`openfilm ${VERSION} runs from a source checkout: git pull updates it.`] };
   const found = (await running()) ?? (await restarting());
-  if (found?.app) return { ok: true, lines: ['Studio is the OpenFilm app\'s: it updates with the app (OpenFilm → Check for Updates…).'] };
+  if (found?.app) return { ok: true, lines: ['Studio is the Framino app\'s: it updates with the app (Framino → Check for Updates…).'] };
   const { latest } = await npmOpenfilm({ force: true, waitMs: 8000 });
   if (!latest) return { ok: false, lines: ['Could not reach npm to learn the newest openfilm: try again when online.'] };
   if (olderThanThis(VERSION, latest)) {
@@ -213,7 +213,7 @@ export async function updateOpenfilm(say = () => {}) {
   }
   if (!found) return { ok: true, lines: [`openfilm ${VERSION} is the newest. Studio starts on it the next time it opens.`] };
   if (!olderThanThis(found.version)) return { ok: true, lines: [`openfilm ${VERSION} is the newest, and Studio runs it.`] };
-  say(`Updating OpenFilm Studio from ${found.version} to ${VERSION}…`);
+  say(`Updating Framino Studio from ${found.version} to ${VERSION}…`);
   const replaced = await replace(found);
   if ('stays' in replaced) return { ok: false, lines: [`Studio keeps running ${found.version} for now: ${replaced.stays}. Update again once that is done.`] };
   await ensureStudio(say);
@@ -344,7 +344,7 @@ export async function canvasCommand(args, say) {
 
 /**
  * `openfilm get [verb] [--option value …] [--yes]`: media for the project around the current folder, made by Studio
- * (started when needed), or found in OpenFilm's own library here (src/library-search.mjs LIBRARY_VERBS, offline and
+ * (started when needed), or found in Framino's own library here (src/library-search.mjs LIBRARY_VERBS, offline and
  * free). Without a verb (or with --help): what can be got here now, the library first. `--via <provider>` and
  * `--model <id>` override the person's choices in Studio's Settings (Models) for one run; the listing leaves them
  * out, as it leaves out who makes what. `code` is the exit status: 0 done, 1 it did not run, 2 not a project or a wrong
@@ -373,7 +373,7 @@ export async function getMedia(argv, say) {
   const { help, via, model, yes, ...args } = flags;
   if (via !== undefined && typeof via !== 'string') return { code: 2, lines: ['openfilm get: --via names a provider, e.g. --via elevenlabs'] };
   if (model !== undefined && typeof model !== 'string') return { code: 2, lines: ['openfilm get: --model names a model, e.g. --model eleven_v4'] };
-  /* OpenFilm's own library: searched here, offline and free, with no Studio (src/library-search.mjs) */
+  /* Framino's own library: searched here, offline and free, with no Studio (src/library-search.mjs) */
   const library = await import('../src/library-search.mjs');
   if (verb && verb in library.LIBRARY_VERBS && help === undefined) {
     /* a Studio running keeps the library and its model loaded: it answers a search in milliseconds; asked only when
@@ -422,7 +422,7 @@ export async function getMedia(argv, say) {
   const where = one || !services ? [] : ['', services];
   const width = Math.max(...[...free, ...verbs].map((v) => v.verb.length));
   const first = one ? [] : [
-    'Free, offline, from OpenFilm\'s own library (CC0): search it first, and make only what it does not have.',
+    'Free, offline, from Framino\'s own library (CC0): search it first, and make only what it does not have.',
     ...lines(free, width), '',
   ];
   /* nothing connected: what to do instead, and which services there are */

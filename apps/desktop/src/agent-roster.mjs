@@ -1,14 +1,14 @@
 /**
  * The agents the chat can use, as Settings → Agents shows them, and the person's choices about them:
  *
- *   · openfilm — the app's own agent (Pi), using the same OpenFilm account as Settings → Services. The cloud offers
+ *   · openfilm — the app's own agent (Pi), using the same Framino account as Settings → Services. The cloud offers
  *     its model menu and relays requests to OpenRouter; signing out or switching accounts applies to both places.
  *
  *   · codex, claude, copilot, cursor, opencode, codebuddy, qwen, kimi, minimax, deepseek, antigravity — the person's own agents
  *     (agents.mjs): Codex, Claude Code, GitHub Copilot, Cursor, OpenCode, CodeBuddy, Qwen Code, Kimi, MiniMax Code,
  *     DeepSeek Harness and Google Antigravity. Each uses the account its own program is signed in to: connecting opens Terminal for its own
  *     sign-in command only when it is signed out (never Codex's or DeepSeek Harness's: each is signed in in its own
- *     app, so one found is connected), disconnecting only stops OpenFilm using it, and connecting again uses whichever
+ *     app, so one found is connected), disconnecting only stops Framino using it, and connecting again uses whichever
  *     account is signed in then. `account` says whose it is. One with a sign-out command (`signOut`) switches account
  *     here (`switchAccount`): signed out, its sessions closed, its sign-in opened and waited for. Codex and
  *     Claude Code are shown in the chat's menu from the start; the others once the person connects one or switches it
@@ -451,7 +451,7 @@ export function createRoster(deps) {
       const wasDisconnected = choices.disconnected.includes(id);
       /* connecting one is choosing it: it is shown in the chat (and among the person's agents in Settings) */
       save({ ...choices, shown: { ...choices.shown, [id]: true }, disconnected: choices.disconnected.filter((a) => a !== id) });
-      if (id === 'openfilm') return deps.openfilm?.connect() ?? { ok: false, error: 'The OpenFilm agent is unavailable.' };
+      if (id === 'openfilm') return deps.openfilm?.connect() ?? { ok: false, error: 'The Framino agent is unavailable.' };
       try {
         if (isOwn(id)) {
           deps.closeSessions(id);
@@ -482,7 +482,7 @@ export function createRoster(deps) {
      * that fails leaves it as it was, with what it said.
      */
     async switchAccount(id) {
-      if (id === 'openfilm') return deps.openfilm?.switchAccount() ?? { ok: false, error: 'The OpenFilm agent is unavailable.' };
+      if (id === 'openfilm') return deps.openfilm?.switchAccount() ?? { ok: false, error: 'The Framino agent is unavailable.' };
       if (!isOwn(id) || !deps.signOut) return { ok: false, error: `No agent ${id}` };
       delete live.errors[id];
       cancelSignIn(id);
