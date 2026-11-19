@@ -4,10 +4,48 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-i18n="meta.title">Framino — AI Video Production Studio</title>
-<meta name="description" data-i18n-attr="content:meta.description" content="Your coding agent writes the film. You edit it in a real editor. One project on disk, no import step, no second copy that can drift.">
+<meta name="description" data-i18n-attr="content:meta.description" content="Go from a brief to a complete, editable video project. Your AI agent writes the script, plans the shots and produces the media — you keep the final cut in a professional editor.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23181A19'/%3E%3Cg fill='none' stroke='%238BA58E' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M13 25V11a3 3 0 0 1 3-3h2'/%3E%3Cpath d='M10 16h8'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="assets/fonts/ibm-plex-sans-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-  /* ── tokens: the same values the Studio ships (docs/FRAMINO_DESIGN_SYSTEM.md) ───────────── */
+  /* ── self-hosted type: IBM Plex Sans (variable) + IBM Plex Mono ──────────────────────────
+     SIL OFL 1.1; the licence text ships in assets/fonts/OFL.txt. No CDN, no build step.
+     Latin subsets only — CJK keeps the system stack so no multi-MB webfont is needed. */
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-sans-latin-var.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-sans-latin-ext-var.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("assets/fonts/ibm-plex-mono-latin-500.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  /* ── tokens: the same color/spacing values the Studio ships (docs/FRAMINO_DESIGN_SYSTEM.md) ──
+     Type is the one deliberate exception: the landing page uses a self-hosted display face. */
   :root {
     --bg: #181a19;
     --panel: #202321;
@@ -28,9 +66,9 @@
     --track-audio: #9b835c;
     --track-text: #718ba5;
     --warn: #d2a66f;
-    --font: Inter, "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif;
-    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --font: "IBM Plex Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-cjk: "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     --r: 3px;
     --max: 1180px;
   }
@@ -112,7 +150,8 @@
   .lang button:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
 
   /* ── Chinese typography: the design system's rules for CJK ──────────────────────────────── */
-  html[data-lang="zh"] body { font-family: var(--font-cjk); }
+  /* Mixed script: Latin and digits keep IBM Plex Sans, CJK falls through to the system stack. */
+  html[data-lang="zh"] body { font-family: var(--font), var(--font-cjk); }
   html[data-lang="zh"] h1,
   html[data-lang="zh"] h2,
   html[data-lang="zh"] h3 { letter-spacing: -0.01em; line-height: 1.22; }
@@ -155,15 +194,15 @@
   .eyebrow .sep { width: 1px; height: 11px; background: var(--border); }
   h1 {
     font-size: clamp(38px, 5vw, 62px);
-    letter-spacing: -0.035em;
-    line-height: 1.04;
+    letter-spacing: -0.025em;
+    line-height: 1.06;
     max-width: 20ch;
     text-wrap: balance;
   }
   h1 em { font-style: normal; color: var(--accent); display: block; }
   .lede {
     margin-top: 26px; max-width: 56ch;
-    font-size: 17px; line-height: 1.62; color: var(--text-2);
+    font-size: 17px; line-height: 1.66; color: var(--text-2);
   }
   .lede strong { color: var(--text); font-weight: 500; }
   .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 34px; }
@@ -223,7 +262,7 @@
   }
   .spec { padding: 22px 24px; border-right: 1px solid var(--border); }
   .spec:last-child { border-right: 0; }
-  .spec .n { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+  .spec .n { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
   .spec .n small { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-left: 3px; }
   .spec .k { margin-top: 8px; font-size: 11.5px; color: var(--muted); }
 
@@ -231,7 +270,7 @@
   section { padding: 84px 0; scroll-margin-top: 56px; }
   .close { scroll-margin-top: 56px; }
   .sec-head { display: grid; grid-template-columns: 132px minmax(0, 760px); gap: 48px; align-items: start; }
-  .sec-head h2 { font-size: clamp(25px, 2.7vw, 33px); letter-spacing: -0.03em; max-width: 30ch; text-wrap: balance; }
+  .sec-head h2 { font-size: clamp(25px, 2.7vw, 33px); letter-spacing: -0.022em; max-width: 30ch; text-wrap: balance; }
   .sec-head .body { min-width: 0; }
   .sec-head .body p { color: var(--text-2); font-size: 15.5px; margin-top: 18px; }
   .sec-head .body p + p { margin-top: 14px; }
@@ -310,7 +349,7 @@
     padding: 15px 16px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
   }
   .lib > div:nth-child(4n) { border-right: 1px solid var(--border); }
-  .lib .n { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+  .lib .n { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
   .lib .k { margin-top: 5px; font-size: 11px; color: var(--muted); }
   html[data-lang="zh"] .lib .k { font-size: 11.5px; letter-spacing: 0; }
 
@@ -337,7 +376,7 @@
 
   /* ── closing ────────────────────────────────────────────────────────────────────────────── */
   .close { padding: 100px 0 0; }
-  .close h2 { font-size: clamp(30px, 4vw, 46px); letter-spacing: -0.035em; max-width: 20ch; }
+  .close h2 { font-size: clamp(30px, 4vw, 46px); letter-spacing: -0.025em; max-width: 20ch; }
   .close p { margin-top: 20px; color: var(--text-2); max-width: 54ch; font-size: 16px; }
 
   footer {
@@ -390,18 +429,18 @@
       <span>framino</span>
     </a>
     <nav>
-      <a href="#pipeline" data-i18n="nav.pipeline">Pipeline</a>
-      <a href="#case" data-i18n="nav.case">Case</a>
-      <a href="#agent" data-i18n="nav.agent">Agent &amp; Studio</a>
-      <a href="#library" data-i18n="nav.library">Library</a>
-      <a href="#install" data-i18n="nav.install">Install</a>
+      <a href="#pipeline" data-i18n="nav.pipeline">How it works</a>
+      <a href="#case" data-i18n="nav.case">Example</a>
+      <a href="#agent" data-i18n="nav.agent">The editor</a>
+      <a href="#library" data-i18n="nav.library">Built-in assets</a>
+      <a href="#install" data-i18n="nav.install">Quick start</a>
     </nav>
     <span class="spacer"></span>
     <div class="lang" role="group" aria-label="Language">
       <button type="button" data-lang-set="en" aria-pressed="true">EN</button>
       <button type="button" data-lang-set="zh" aria-pressed="false">中文</button>
     </div>
-    <a class="ghost" href="#install" data-i18n="nav.docs">Docs</a>
+    <a class="ghost" href="#case" data-i18n="nav.example">See an example</a>
     <a class="primary" href="#install" data-i18n="nav.getStarted">Get started</a>
   </div>
 </header>
@@ -416,35 +455,34 @@
           <span class="dot"></span>
           <span data-i18n="hero.kicker">AI Video Production Studio</span>
           <span class="sep"></span>
-          <span data-i18n="hero.license">Open source · MIT</span>
+          <span data-i18n="hero.license">Private by design · Runs on your machine</span>
         </div>
         <h1><span data-i18n="hero.title1">Your agent writes the film.</span> <em data-i18n="hero.title2">You keep the cut.</em></h1>
         <p class="lede" data-i18n="hero.lede">
-          Framino is the workbench between your coding agent and the video models. The agent writes the script,
-          the storyboard and the shots. You open a real editor and work on it like an editor does:
-          trim, move, rewrite subtitles, set levels, export.
-          <strong>One project on disk — no import step, no second copy that can drift.</strong>
+          Framino turns a brief into a finished video — script, storyboard, generated shots, captions and audio —
+          with your AI agent doing the production work. Then you step into a professional editor to refine every frame.
+          <strong>You approve what gets made, and the final cut is always yours.</strong>
         </p>
         <div class="cta-row">
-          <a class="btn-lg" href="#install" data-i18n="cta.install">Install Framino</a>
-          <a class="btn-lg outline" href="#case" data-i18n="cta.seeCase">See a real project</a>
-          <span class="cmd"><span class="p">$</span> corepack pnpm dev</span>
+          <a class="btn-lg" href="#install" data-i18n="cta.install">Start creating</a>
+          <a class="btn-lg outline" href="#case" data-i18n="cta.seeCase">See it in action</a>
+          <span class="cmd" data-i18n="hero.trust">Works with Codex, Claude Code &amp; your own models</span>
         </div>
       </div>
 
       <figure class="frame" style="margin-bottom:0">
         <div class="frame-bar">
           <span class="dots"><i></i><i></i><i></i></span>
-          <span class="path">framino studio — the-long-summer</span>
-          <span class="tag" data-i18n="shot.tag">Real screenshot</span>
+          <span class="path">The Long Summer · Framino Studio</span>
+          <span class="tag" data-i18n="shot.tag">Inside Framino Studio</span>
         </div>
         <img src="assets/studio-hero.webp" width="3200" height="2000"
              data-i18n-attr="alt:alt.hero"
              alt="Framino Studio editing a four-shot film: media library on the left, preview monitor with a rain-soaked night street and a burned-in subtitle, inspector on the right, and a three-track timeline with four video clips, a caption track and a music bed.">
       </figure>
       <p class="caption">
-        <b data-i18n="hero.capB">Not a mockup.</b>
-        <span data-i18n="hero.capT">Framino Studio, opened on the project built below — 4 shots, 3 tracks, 5 clips, 7.1 s, revision <code>ce0204c6b9</code>.</span>
+        <b data-i18n="hero.capB">Ready to edit.</b>
+        <span data-i18n="hero.capT">The sample project below, opened in Framino Studio — 4 shots, 3 tracks, captions and a music bed, every clip ready to change.</span>
       </p>
     </div>
   </div>
@@ -453,20 +491,20 @@
   <div class="wrap">
     <div class="specs">
       <div class="spec">
-        <div class="n">53<small>/53</small></div>
-        <div class="k" data-i18n="spec.tests">tests passing in the production package</div>
+        <div class="n">100%<small data-i18n="spec.editableUnit">editable</small></div>
+        <div class="k" data-i18n="spec.editable">from the first shot to the final export, nothing is locked</div>
       </div>
       <div class="spec">
         <div class="n">8<small data-i18n="spec.stepsUnit">steps</small></div>
-        <div class="k" data-i18n="spec.steps">idea to exported MP4, with a human gate</div>
+        <div class="k" data-i18n="spec.steps">from brief to exported film, with a human approval</div>
       </div>
       <div class="spec">
-        <div class="n">0<small data-i18n="spec.cloudUnit">cloud</small></div>
-        <div class="k" data-i18n="spec.cloud">projects, accounts or credits in the middle</div>
+        <div class="n">0<small data-i18n="spec.accountsUnit">accounts</small></div>
+        <div class="k" data-i18n="spec.accounts">no sign-up, no credits, no middleman</div>
       </div>
       <div class="spec">
-        <div class="n">1<small data-i18n="spec.folderUnit">folder</small></div>
-        <div class="k" data-i18n="spec.folder">the agent and the editor read the same files</div>
+        <div class="n">1<small data-i18n="spec.projectUnit">project</small></div>
+        <div class="k" data-i18n="spec.project">one editable project your agent and editor share</div>
       </div>
     </div>
   </div>
@@ -475,31 +513,31 @@
   <section id="pipeline">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label" data-i18n="pipe.label">The pipeline</div>
+        <div class="label" data-i18n="pipe.label">How it works</div>
         <div class="body">
-          <h2 data-i18n="pipe.title">Others stop at the download. Framino hands you the project.</h2>
+          <h2 data-i18n="pipe.title">AI video tools give you an MP4. Framino gives you the whole project.</h2>
           <p data-i18n="pipe.p1">
-            The agent captures the brief, writes the script, designs the storyboard, calls the video model shot by
-            shot, lands and validates the media, then assembles a project. You approve before anything is generated,
-            and you edit after.
+            Describe what you want to make. Framino plans the script and storyboard, generates each shot with the
+            model you choose, gathers and checks the media, then assembles a finished project — ready to open in
+            the editor. You approve the plan before anything is generated.
           </p>
           <p data-i18n="pipe.p2">
-            Every step writes to a manifest that doubles as a ledger. A task is recorded before the call, a task left
-            running is resolved against the disk instead of being resubmitted, and every retry is a new take with a
-            new file name — so nothing is overwritten and nobody pays twice.
+            Every shot stays independent, so you can regenerate one without touching the rest. Nothing is
+            overwritten, an interrupted run resumes instead of charging you twice, and your edits are saved as
+            you work. Automation that leaves you in charge.
           </p>
         </div>
       </div>
 
       <div class="pipe">
-        <div class="step"><span class="i">01</span><span class="t" data-i18n="step1.t">Idea</span><span class="d" data-i18n="step1.d">Topic, audience, length, aspect ratio, style, platform, language, budget limits.</span><span class="o">manifest.brief</span></div>
-        <div class="step"><span class="i">02</span><span class="t" data-i18n="step2.t">Script</span><span class="d" data-i18n="step2.d">Hook, scenes, voice-over, dialogue, subtitles, ending, pacing.</span><span class="o">production/script.md</span></div>
-        <div class="step"><span class="i">03</span><span class="t" data-i18n="step3.t">Storyboard</span><span class="d" data-i18n="step3.d">One structured entry per shot: framing, movement, lighting, prompt, voice-over, subtitle.</span><span class="o">manifest.shots[]</span></div>
-        <div class="step gate"><span class="i">04</span><span class="t" data-i18n="step4.t">Your approval</span><span class="d" data-i18n="step4.d">Script and storyboard are approved by a person before a single second is generated.</span><span class="o">manifest.approval</span></div>
-        <div class="step"><span class="i">05</span><span class="t" data-i18n="step5.t">Generation</span><span class="d" data-i18n="step5.d">One call per shot through the service you connected. You confirm the spend. Regenerating one shot touches no other.</span><span class="o">manifest.tasks[]</span></div>
-        <div class="step"><span class="i">06</span><span class="t" data-i18n="step6.t">Asset pipeline</span><span class="d" data-i18n="step6.d">Probe duration, resolution, fps and codecs. A file that does not decode never enters the project.</span><span class="o">manifest.assets[]</span></div>
-        <div class="step"><span class="i">07</span><span class="t" data-i18n="step7.t">Assembly</span><span class="d" data-i18n="step7.d">Each shot its own clip, separate audio tracks, captions on their own track, every shot replaceable.</span><span class="o">film.html</span></div>
-        <div class="step"><span class="i">08</span><span class="t" data-i18n="step8.t">Edit &amp; export</span><span class="d" data-i18n="step8.d">You work in Studio. Edits are written to disk as you make them, so the agent sees them and keeps them.</span><span class="o">MP4 · NLE · stills</span></div>
+        <div class="step"><span class="i">01</span><span class="t" data-i18n="step1.t">Your brief</span><span class="d" data-i18n="step1.d">Tell it the topic, audience, length, format, style, platform, language and budget.</span><span class="o" data-i18n="step1.o">A clear brief</span></div>
+        <div class="step"><span class="i">02</span><span class="t" data-i18n="step2.t">Script</span><span class="d" data-i18n="step2.d">A hook, scenes, voice-over, dialogue, subtitles and pacing — written for your format.</span><span class="o" data-i18n="step2.o">A ready script</span></div>
+        <div class="step"><span class="i">03</span><span class="t" data-i18n="step3.t">Storyboard</span><span class="d" data-i18n="step3.d">Every shot planned: framing, camera movement, lighting, prompt, voice-over and caption.</span><span class="o" data-i18n="step3.o">A shot list</span></div>
+        <div class="step gate"><span class="i">04</span><span class="t" data-i18n="step4.t">Your approval</span><span class="d" data-i18n="step4.d">Review the script and storyboard before a single second is generated. Nothing runs without your sign-off.</span><span class="o" data-i18n="step4.o">Your sign-off</span></div>
+        <div class="step"><span class="i">05</span><span class="t" data-i18n="step5.t">Generation</span><span class="d" data-i18n="step5.d">Each shot is generated through the service you connected. You confirm the cost; regenerating one shot leaves the others alone.</span><span class="o" data-i18n="step5.o">Your clips</span></div>
+        <div class="step"><span class="i">06</span><span class="t" data-i18n="step6.t">Media check</span><span class="d" data-i18n="step6.d">Every file is checked for duration, resolution, frame rate and audio before it enters your project.</span><span class="o" data-i18n="step6.o">Verified media</span></div>
+        <div class="step"><span class="i">07</span><span class="t" data-i18n="step7.t">Editable project</span><span class="d" data-i18n="step7.d">Each shot on its own clip, separate audio and caption tracks, every shot replaceable.</span><span class="o" data-i18n="step7.o">Editable timeline</span></div>
+        <div class="step"><span class="i">08</span><span class="t" data-i18n="step8.t">Edit &amp; export</span><span class="d" data-i18n="step8.d">Refine in Studio and export in the format you need. Changes are saved as you make them, so your agent sees them too.</span><span class="o" data-i18n="step8.o">MP4 · NLE · stills</span></div>
       </div>
     </div>
   </section>
@@ -510,15 +548,13 @@
   <section id="case">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label" data-i18n="case.label">A real project</div>
+        <div class="label" data-i18n="case.label">Example project</div>
         <div class="body">
-          <h2 data-i18n="case.title">The Long Summer — a title sequence, assembled by the adapter.</h2>
+          <h2 data-i18n="case.title">The Long Summer — a finished title sequence, ready to edit.</h2>
           <p data-i18n="case.p">
-            Four shots, two scenes, a caption track and a music bed. The manifest below was written by hand and
-            assembled by the real <code>assemble()</code> in <code>packages/framino-production/src/adapter.mjs</code>
-            — the same code path the tests exercise. The footage is cut from the <code>cinema-open</code> film that
-            ships in Framino's own library, so every asset records <code>origin: "library"</code> and no clip is
-            marked as a test fixture.
+            Four shots, two scenes, captions and a music bed, delivered as one Framino project. Each shot is its own
+            clip with its own timing and subtitle, so you can swap a shot, rewrite a caption or re-time the cut
+            without starting over. What you see here is the actual project opened in Studio.
           </p>
         </div>
       </div>
@@ -526,15 +562,15 @@
       <div class="case">
         <div class="case-top">
           <h3 data-i18n="case.name">The Long Summer</h3>
-          <span class="meta">project_id: the-long-summer · 1920×1080 · 30 fps · 7.1 s</span>
-          <span class="badge" data-i18n="case.badge">Assembled, not mocked</span>
+          <span class="meta" data-i18n="case.meta">1920 × 1080 · 30 fps · 7.1 s · 4 shots</span>
+          <span class="badge" data-i18n="case.badge">Fully editable</span>
         </div>
 
         <div class="shots">
           <div class="shot">
             <div class="img"><img src="assets/frame-sh01.jpg" width="480" height="270" data-i18n-attr="alt:alt.sh01" alt="A woman with an umbrella crossing a rain-soaked street at night, shop windows and a red traffic light reflected in the wet asphalt."></div>
             <div class="info">
-              <div class="id"><span>sh01 · sc01</span><span class="dur">1.7 s</span></div>
+              <div class="id"><span>01 / 04</span><span class="dur">1.7 s</span></div>
               <div class="sub" data-i18n="sh01.sub">She left on a Tuesday, in the rain.</div>
               <div class="vo" data-i18n="sh01.vo">slow lateral tracking</div>
             </div>
@@ -542,7 +578,7 @@
           <div class="shot">
             <div class="img"><img src="assets/frame-sh02.jpg" width="480" height="270" data-i18n-attr="alt:alt.sh02" alt="A train window at dusk: a reflection in the glass with a green valley passing outside."></div>
             <div class="info">
-              <div class="id"><span>sh02 · sc01</span><span class="dur">1.2 s</span></div>
+              <div class="id"><span>02 / 04</span><span class="dur">1.2 s</span></div>
               <div class="sub" data-i18n="sh02.sub">The city kept its weather.</div>
               <div class="vo" data-i18n="sh02.vo">locked off, reflection drift</div>
             </div>
@@ -550,7 +586,7 @@
           <div class="shot">
             <div class="img"><img src="assets/frame-sh03.jpg" width="480" height="270" data-i18n-attr="alt:alt.sh03" alt="A fog-covered mountain road at first light, with a single car climbing and the sun breaking through the mist."></div>
             <div class="info">
-              <div class="id"><span>sh03 · sc02</span><span class="dur">2.6 s</span></div>
+              <div class="id"><span>03 / 04</span><span class="dur">2.6 s</span></div>
               <div class="sub" data-i18n="sh03.sub">The mountains kept theirs.</div>
               <div class="vo" data-i18n="sh03.vo">slow push in</div>
             </div>
@@ -558,7 +594,7 @@
           <div class="shot">
             <div class="img"><img src="assets/frame-sh04.jpg" width="480" height="270" data-i18n-attr="alt:alt.sh04" alt="A letterboxed title card over the fogged mountain road."></div>
             <div class="info">
-              <div class="id"><span>sh04 · sc02</span><span class="dur">1.6 s</span></div>
+              <div class="id"><span>04 / 04</span><span class="dur">1.6 s</span></div>
               <div class="sub" data-i18n="sh04.sub">The Long Summer</div>
               <div class="vo" data-i18n="sh04.vo">locked off</div>
             </div>
@@ -567,39 +603,25 @@
 
         <div class="case-bottom">
           <div>
-            <h4 data-i18n="case.codeH">What the adapter wrote — film.html</h4>
-            <pre><span class="c">&lt;!-- one section per track, top layer first --&gt;</span>
-&lt;<span class="k">section</span> <span class="a">data-framino-track</span>=<span class="s">"captions"</span>&gt;
-  &lt;<span class="k">track</span> <span class="a">kind</span>=<span class="s">"captions"</span> <span class="a">src</span>=<span class="s">"captions/film.vtt"</span>
-         <span class="a">srclang</span>=<span class="s">"en"</span> <span class="a">label</span>=<span class="s">"English"</span>&gt;
-&lt;/<span class="k">section</span>&gt;
-&lt;<span class="k">section</span> <span class="a">data-framino-track</span>=<span class="s">"video"</span>&gt;
-  &lt;<span class="k">video</span> <span class="a">id</span>=<span class="s">"sh01"</span> <span class="a">src</span>=<span class="s">"assets/video/sh01-t1.mp4#t=0,1.7"</span>
-         <span class="a">data-shot-id</span>=<span class="s">"sh01"</span> <span class="a">data-scene-id</span>=<span class="s">"sc01"</span>
-         <span class="a">data-asset-id</span>=<span class="s">"video-sh01-t1"</span>&gt;&lt;/<span class="k">video</span>&gt;
-  &lt;<span class="k">video</span> <span class="a">id</span>=<span class="s">"sh02"</span> <span class="a">src</span>=<span class="s">"assets/video/sh02-t1.mp4#t=0,1.2"</span>
-         <span class="a">at</span>=<span class="s">"1.7"</span> <span class="a">data-shot-id</span>=<span class="s">"sh02"</span> …&gt;&lt;/<span class="k">video</span>&gt;
-&lt;/<span class="k">section</span>&gt;
-&lt;<span class="k">section</span> <span class="a">data-framino-track</span>=<span class="s">"music"</span>&gt;
-  &lt;<span class="k">audio</span> <span class="a">id</span>=<span class="s">"music-bed"</span> <span class="a">src</span>=<span class="s">"assets/audio/music-bed.m4a"</span>
-         <span class="a">volume</span>=<span class="s">"0.28"</span> <span class="a">data-asset-id</span>=<span class="s">"music-bed"</span>&gt;&lt;/<span class="k">audio</span>&gt;
-&lt;/<span class="k">section</span>&gt;</pre>
+            <h4 data-i18n="case.insideH">What's inside every project</h4>
+            <div class="facts">
+              <div class="fact"><span class="fk" data-i18n="case.shots">Shots</span><span class="fv" data-i18n="case.shotsV">4 editable clips</span></div>
+              <div class="fact"><span class="fk" data-i18n="case.tracks">Tracks</span><span class="fv" data-i18n="case.tracksV">captions · video · music</span></div>
+              <div class="fact"><span class="fk" data-i18n="case.captions">Captions</span><span class="fv" data-i18n="case.captionsV">4, timed to the frame</span></div>
+              <div class="fact"><span class="fk" data-i18n="case.runtime">Runtime</span><span class="fv" data-i18n="case.runtimeV">7.1 s · 1920 × 1080</span></div>
+            </div>
           </div>
           <div>
-            <h4 data-i18n="case.factsH">What the run reported</h4>
+            <h4 data-i18n="case.controlH">What stays under your control</h4>
             <div class="facts">
-              <div class="fact"><span class="fk">film_rev</span><span class="fv">ce0204c6b9…</span></div>
-              <div class="fact"><span class="fk" data-i18n="fact.placed">shots placed</span><span class="fv">sh01 sh02 sh03 sh04</span></div>
-              <div class="fact"><span class="fk" data-i18n="fact.skipped">shots skipped</span><span class="fv" data-i18n="fact.none">none</span></div>
-              <div class="fact"><span class="fk" data-i18n="fact.tracks">tracks</span><span class="fv" data-i18n="fact.tracksV">captions, video, music</span></div>
-              <div class="fact"><span class="fk" data-i18n="fact.cues">caption cues</span><span class="fv">4</span></div>
-              <div class="fact"><span class="fk" data-i18n="fact.origin">asset origin</span><span class="fv" data-i18n="fact.originV">library ×5</span></div>
-              <div class="fact"><span class="fk" data-i18n="fact.fixtures">test fixtures</span><span class="fv">0</span></div>
-              <div class="fact"><span class="fk" data-i18n="fact.twice">assembled twice</span><span class="fv" data-i18n="fact.twiceV">byte-identical</span></div>
+              <div class="fact"><span class="fk" data-i18n="case.approve">Approve before generating</span><span class="fv" data-i18n="case.yes">Yes</span></div>
+              <div class="fact"><span class="fk" data-i18n="case.replaceShot">Replace a single shot</span><span class="fv" data-i18n="case.yes">Yes</span></div>
+              <div class="fact"><span class="fk" data-i18n="case.keepEdits">Keep your manual edits</span><span class="fv" data-i18n="case.yes">Yes</span></div>
+              <div class="fact"><span class="fk" data-i18n="case.account">Account required</span><span class="fv" data-i18n="case.no">No</span></div>
             </div>
-            <p style="margin-top:16px;font-size:12px;color:var(--muted);line-height:1.6" data-i18n="case.fixedPoint">
-              Assembling is a fixed point: the second run writes nothing, because the text it would write is the text
-              already on disk. That is what makes it safe to re-run after an agent edit.
+            <p style="margin-top:16px;font-size:12px;color:var(--muted);line-height:1.6" data-i18n="case.note">
+              Every change is saved as you make it. Hand the project back to your agent tomorrow, or export it now —
+              it is always exactly where you left it.
             </p>
           </div>
         </div>
@@ -613,18 +635,17 @@
   <section id="agent">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label" data-i18n="agent.label">Agent &amp; Studio</div>
+        <div class="label" data-i18n="agent.label">One workspace</div>
         <div class="body">
-          <h2 data-i18n="agent.title">Two modes, one file. A change made by one is the state the other reads.</h2>
+          <h2 data-i18n="agent.title">Your agent and your editor, always on the same page.</h2>
           <p data-i18n="agent.p1">
-            <strong>Agent mode</strong> — your coding agent creates and changes the project.<br>
-            <strong>Studio mode</strong> — you review and edit by hand.
+            <strong>Delegate the production.</strong> Your coding agent writes the script, plans the shots and builds the project.<br>
+            <strong>Keep the final say.</strong> You review, refine and approve in Studio.
           </p>
           <p data-i18n="agent.p2">
-            The Agent panel shows the project's real state — tracks, clips and revision read from disk — and the real
-            event stream: film writes, exports, files, canvas, history. It does not pretend a conversation happened.
-            In the browser Studio there is no chat of its own, and the panel says exactly that: an instruction
-            composed there is copied for your agent, never presented as run.
+            The workspace shows the live state of your project — tracks, clips, captions and revision — plus a clear
+            record of every change: film writes, exports, files and history. Your agent's edits and yours land in
+            the same project, so neither overwrites the other.
           </p>
         </div>
       </div>
@@ -632,29 +653,29 @@
       <figure class="frame" style="margin-top:48px">
         <div class="frame-bar">
           <span class="dots"><i></i><i></i><i></i></span>
-          <span class="path" data-i18n="agent.path1">agent panel — project state read from disk</span>
+          <span class="path" data-i18n="agent.path1">Project overview</span>
         </div>
         <img src="assets/studio-agent.webp" width="3200" height="2000"
              data-i18n-attr="alt:alt.agent"
-             alt="The Framino Agent panel open beside the editor, showing project context read from disk: 1920 by 1080 stage, 3 tracks, 5 clips, revision ce0204c6b9, an honest connection notice, and example instructions.">
+             alt="The Framino workspace open beside the editor, showing project context read live from the file: 1920 by 1080 stage, 3 tracks, 5 clips, and example instructions for your coding agent.">
       </figure>
       <p class="caption">
-        <b data-i18n="agent.cap1B">Every number in that panel comes from the file.</b>
-        <span data-i18n="agent.cap1T">1920 × 1080 · 3 tracks · 5 clips · revision <code>ce0204c6b9</code> — read from <code>film.html</code>, not typed into a component.</span>
+        <b data-i18n="agent.cap1B">Always up to date.</b>
+        <span data-i18n="agent.cap1T">1920 × 1080 · 3 tracks · 5 clips — read live from the project, so what you see is what your agent sees.</span>
       </p>
 
       <figure class="frame" style="margin-top:32px">
         <div class="frame-bar">
           <span class="dots"><i></i><i></i><i></i></span>
-          <span class="path" data-i18n="agent.path2">timeline — four shots, four captions, one music bed</span>
+          <span class="path" data-i18n="agent.path2">Timeline — shots, captions &amp; music</span>
         </div>
         <img src="assets/studio-timeline.webp" width="2350" height="476"
              data-i18n-attr="alt:alt.timeline"
              alt="Timeline detail: a caption track with four subtitle clips, a video track with four clips each carrying its shot id and duration, and a music bed on an audio track.">
       </figure>
       <p class="caption">
-        <b data-i18n="agent.cap2B">Caption cues are generated from the shots, not typed twice.</b>
-        <span data-i18n="agent.cap2T">Each cue takes its shot id and lands on the film second its picture really starts at.</span>
+        <b data-i18n="agent.cap2B">Captions stay in sync with your shots.</b>
+        <span data-i18n="agent.cap2T">Each caption is timed to the exact frame its shot begins — no manual re-timing.</span>
       </p>
     </div>
   </section>
@@ -665,26 +686,26 @@
   <section id="library">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label" data-i18n="lib.label">The library</div>
+        <div class="label" data-i18n="lib.label">Built-in assets</div>
         <div class="body">
-          <h2 data-i18n="lib.title">Everything in the timeline is a file you already have.</h2>
+          <h2 data-i18n="lib.title">Everything you need to finish the cut, already included.</h2>
           <p data-i18n="lib.p">
-            A film is a folder with a <code>film.html</code>: tracks of clips cut together, styled with CSS. The agent
-            already knows the web, so nothing new has to be learned — and nothing is locked behind a service.
-            Counted from <code>packages/openfilm/library/</code> in this repository.
+            Text styles, effects, motion presets, transitions, stickers, sound effects, templates and colour filters
+            all ship with Framino — no extra packs to buy, no marketplace to browse. Everything lives in your
+            project, so the work stays yours.
           </p>
         </div>
       </div>
 
       <div class="lib">
-        <div><div class="n">78</div><div class="k" data-i18n="lib.text">text styles</div></div>
+        <div><div class="n">78</div><div class="k" data-i18n="lib.text">text &amp; title styles</div></div>
         <div><div class="n">71</div><div class="k" data-i18n="lib.effects">effects</div></div>
         <div><div class="n">64</div><div class="k" data-i18n="lib.motions">motion presets</div></div>
         <div><div class="n">61</div><div class="k" data-i18n="lib.transitions">transitions</div></div>
-        <div><div class="n">56</div><div class="k" data-i18n="lib.stickers">stickers</div></div>
+        <div><div class="n">56</div><div class="k" data-i18n="lib.stickers">stickers &amp; graphics</div></div>
         <div><div class="n">20</div><div class="k" data-i18n="lib.sounds">sound effects</div></div>
-        <div><div class="n">14</div><div class="k" data-i18n="lib.templates">templates</div></div>
-        <div><div class="n">2</div><div class="k" data-i18n="lib.filters">colour filters</div></div>
+        <div><div class="n">14</div><div class="k" data-i18n="lib.templates">project templates</div></div>
+        <div><div class="n">2</div><div class="k" data-i18n="lib.filters">colour grades</div></div>
       </div>
 
       <div class="exports">
@@ -707,19 +728,20 @@
   <section id="install">
     <div class="wrap">
       <div class="sec-head">
-        <div class="label" data-i18n="install.label">Install</div>
+        <div class="label" data-i18n="install.label">Quick setup</div>
         <div class="body">
-          <h2 data-i18n="install.title">Node 22.18+, pnpm 9, git. ffmpeg for rendering.</h2>
+          <h2 data-i18n="install.title">Up and running in a few minutes.</h2>
           <p data-i18n="install.p">
-            The first render downloads a headless Chromium, about 100 MB — the same engine the preview draws with, so
-            what you see is what you export.
+            Framino runs on your machine, so there is no account to create and nothing to upload. The first render
+            downloads a headless browser (~100 MB); after that, preview and export use the same engine — what you
+            see is what you get.
           </p>
         </div>
       </div>
 
       <div class="install">
         <div class="term">
-          <div class="h" data-i18n="install.h1">From source</div>
+          <div class="h" data-i18n="install.h1">1 · Set up Studio</div>
           <pre><span class="p">$</span> git clone https://github.com/aircrushin/Framino
 <span class="p">$</span> cd Framino
 <span class="p">$</span> corepack enable
@@ -727,12 +749,12 @@
 <span class="p">$</span> pnpm dev            <span class="cm" data-i18n="install.c1"># Studio on 127.0.0.1:4848</span></pre>
         </div>
         <div class="term">
-          <div class="h" data-i18n="install.h2">Drive it from your agent</div>
-          <pre><span class="p">$</span> openfilm open "/path/to/project"  <span class="cm" data-i18n="install.c2"># Studio opens on it</span>
-<span class="p">$</span> openfilm look                    <span class="cm" data-i18n="install.c3"># check the film</span>
-<span class="p">$</span> openfilm render                  <span class="cm" data-i18n="install.c4"># the MP4</span>
+          <div class="h" data-i18n="install.h2">2 · Put your agent to work</div>
+          <pre><span class="p">$</span> openfilm open "/path/to/project"  <span class="cm" data-i18n="install.c2"># your project opens in Studio</span>
+<span class="p">$</span> openfilm look                    <span class="cm" data-i18n="install.c3"># inspect the project</span>
+<span class="p">$</span> openfilm render                  <span class="cm" data-i18n="install.c4"># export the MP4</span>
 <span class="p">$</span> openfilm get video               <span class="cm" data-i18n="install.c5"># media, shot by shot</span>
-<span class="p">$</span> openfilm skills                  <span class="cm" data-i18n="install.c6"># what a film is made with</span></pre>
+<span class="p">$</span> openfilm skills                  <span class="cm" data-i18n="install.c6"># built-in skills &amp; assets</span></pre>
         </div>
       </div>
     </div>
@@ -741,14 +763,15 @@
   <!-- ── closing ──────────────────────────────────────────────────────────────────────────── -->
   <div class="close">
     <div class="wrap">
-      <h2 data-i18n="close.title">The AI makes an editable project, not a file.</h2>
+      <h2 data-i18n="close.title">Make more video. Keep the final cut.</h2>
       <p data-i18n="close.p">
-        That is the whole difference. A prompt-to-MP4 tool gives you something to download. Framino gives you
-        something to keep working on — with the same agent, or by hand, or both.
+        Most AI video tools hand you an MP4 and call it done. Framino hands you a complete, editable project you
+        can keep improving — with your agent, by hand, or both. Start with a brief; finish with something worth
+        publishing.
       </p>
       <div class="cta-row">
-        <a class="btn-lg" href="#install" data-i18n="cta.install">Install Framino</a>
-        <a class="btn-lg outline" href="#case" data-i18n="close.cta2">Re-read the case</a>
+        <a class="btn-lg" href="#install" data-i18n="cta.install">Start creating</a>
+        <a class="btn-lg outline" href="#case" data-i18n="close.cta2">Explore the example</a>
       </div>
     </div>
   </div>
@@ -757,12 +780,12 @@
     <div class="wrap foot">
       <span data-i18n="foot.name">Framino — AI Video Production Studio</span>
       <span>·</span>
-      <span data-i18n="foot.license">MIT, a fork of OpenFilm</span>
+      <span data-i18n="foot.license">© 2026 Framino · Built on OpenFilm · MIT</span>
       <span class="spacer"></span>
-      <a href="#pipeline" data-i18n="nav.pipeline">Pipeline</a>
-      <a href="#case" data-i18n="nav.case">Case</a>
-      <a href="#library" data-i18n="nav.library">Library</a>
-      <a href="#install" data-i18n="nav.install">Install</a>
+      <a href="#pipeline" data-i18n="nav.pipeline">How it works</a>
+      <a href="#case" data-i18n="nav.case">Example</a>
+      <a href="#library" data-i18n="nav.library">Built-in assets</a>
+      <a href="#install" data-i18n="nav.install">Quick start</a>
     </div>
   </footer>
 

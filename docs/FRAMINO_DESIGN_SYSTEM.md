@@ -62,8 +62,10 @@ keeps the 16 px raster a 1.4 px stroke instead of a grey smear. No image library
 | Chinese UI | `--font-cjk-sans` | PingFang SC, Hiragino Sans GB, Microsoft YaHei, Noto Sans SC, Source Han Sans SC |
 | Numbers, timecode, revisions | `--font-mono` / `--studio-timecode-font` | ui-monospace, SF Mono, Menlo, Consolas |
 
-No webfont was added: `@fontsource-variable/inter` is already a repository dependency, and CJK falls back to the
-system stack as the original project does.
+No webfont was added to Studio: `@fontsource-variable/inter` is already a repository dependency, and CJK falls back
+to the system stack as the original project does. The static landing page is the one deliberate exception — it
+self-hosts IBM Plex Sans / IBM Plex Mono in `landing/assets/fonts/` (SIL OFL 1.1) so it renders identically without
+a build step. See `landing/index.html` and `THIRD_PARTY_NOTICES.md`.
 
 Editor type scale (all small; a production tool is read at a glance):
 
