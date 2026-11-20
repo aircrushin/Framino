@@ -1,8 +1,9 @@
 # Framino — Video Generation (the built-in path)
 
-> Status: **decision recorded, not built**. There is **no Framino Video API Gateway**. Generation uses what already
-> ships: `openfilm get video` and its providers. Owner: Agent 2 (Skill) records the tasks; Agent 4 (Pipeline)
-> validates what lands. Contract: `FRAMINO_INTEGRATION_CONTRACT.md` §4 (`tasks[]`, `assets[]`), §6, §7.
+> Status: **decision stands, ledger built and verified offline; first real call blocked on a connected service**.
+> There is **no Framino Video API Gateway**. Generation uses what already ships: `openfilm get video` and its
+> providers. Owner: Agent 2 (Skill) records the tasks; Agent 4 (Pipeline) validates what lands. Contract:
+> `FRAMINO_INTEGRATION_CONTRACT.md` §4 (`tasks[]`, `assets[]`), §6, §7.
 
 ## Decision
 
@@ -71,3 +72,27 @@ Rules:
 
 Studio → Settings → Services: their own key, or OpenFilm's service, or a local model. That is the whole setup. The
 first clip of a run is confirmed in Studio, like any other `get video`.
+
+## The three things, implemented
+
+The three things §"So Framino supplies exactly three things" promises are now code in
+`skills/framino-production/ledger.mjs`, called by the Skill (contract §6):
+
+| Promise | Function | Behaviour |
+| --- | --- | --- |
+| A ledger before the call | `beginCall` | Appends the task `running` with its `request_key`, atomically, before the CLI call; refuses a duplicate take and a pre-approval begin. |
+| A check on start | `recover` (`resolveRunning` + `abandonVanished`) | A task left `running` is settled against the disk: valid clip → `succeeded` with a receipt, no clip → `failed` with `error.code = "timeout"`; a `succeeded` task whose clip vanished → `abandoned`. Never a blind resubmit. |
+| Take numbering | `nextTake`, `outName` | A retry uses a new take and a new `--out` (`<shot>-t<take>`), so no file is overwritten and nothing is ever forced. `nextTake` counts takes in `tasks[]` as well as `assets[]` — a failed take has no asset, and counting only assets would reuse its number (the second-charge hazard). |
+
+The guard the Skill asks before every call is `planCall(manifest, shot, take)`: `skip` (succeeded → never resend),
+`resolve` (still running → recover first), `new-take` (failed/abandoned → use the number it returns), `call` (no
+task → begin first). The `request_key` is `manifest.mjs`'s §6 hash; `succeedCall` records provider/model from the
+vendor receipt (§4.1), `failCall` records a §7 error.
+
+### Verification
+
+`node --test skills/framino-production/ledger.test.mjs` — 11 pass, 0 fail, offline. The tests make ffmpeg fixtures
+(`origin: agent-code`, §9), settle `running` tasks against real files, and prove that after a simulated crash a
+succeeded take is skipped and a failed take gets a new number. No vendor, key or spend. `openfilm get video` still
+reports "Not connected here", so the first real call, a real kill-mid-run restart and the Codex/Claude transcripts
+remain blocked on the person connecting a service (see `docs/FRAMINO_VIDEO_SKILL.md` §Status).
