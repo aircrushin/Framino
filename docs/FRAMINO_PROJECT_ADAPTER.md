@@ -1,6 +1,7 @@
 # Framino — Project Adapter (Agent 1)
 
-> Status: **not started**. Owner: Agent 1. Contract: `FRAMINO_INTEGRATION_CONTRACT.md` §1–§4, §8, §9.
+> Status: **implemented and verified offline** (2026-11-19); awaiting Studio E2E and a connected service.
+> Owner: Agent 1. Contract: `FRAMINO_INTEGRATION_CONTRACT.md` §1–§4, §8, §9.
 
 ## Job
 
@@ -38,4 +39,117 @@ by comparing with `manifest.assembly.film_rev` and the clip's values at that rev
 
 ## Status
 
-_Fill in when done: AGENTS.md "When you finish", items 1–8._
+_Verified 2026-11-19 against the code in `packages/framino-production/`. Contract sections linked where relevant._
+
+### 1. What was implemented
+
+The manifest ⇄ film.html chain of contract §1–§4, §8, §9, in four modules:
+
+- `src/manifest.mjs`: the Production Manifest file — parse, validate (`problemsIn`), atomic read/write (`writeManifest`,
+  `updateManifest` with `updated_at` ownership check per §4.1), the id minters of §2, the `request_key` hash of §6,
+  and the `ManifestError` shape of §7. This is the package's default export (`paths .` and `./manifest`).
+- `src/film.mjs`: the single bridge to `film-doc.mjs`. `packages/openfilm` is not linked into `node_modules` after a
+  clean install, so every Framino import of `film-doc` goes through here by relative path (the decision and why are in
+  the file header). Re-exports `readFilmFile`/`filmHtml`, plus `filmRev` (sha256, matching Studio's 16-char prefix),
+  `readFilmAt`, `clipsOfShot` (find by `data-shot-id`, never clip id, §2.1), `assertStable` and helpers.
+- `src/adapter.mjs`: `assemble(root, manifest)` places each shot's selected take on the video track (running-sum `at`,
+  `#t`-style length, fade), voiceovers on `voiceover`, the music bed on `music` (level from `manifest.audio`), captions
+  into `captions/film.vtt` (cue id = shot id), and writes `assembly` (`film_rev`, `at`, `placed`). `readAssembly` reads
+  `film.html` back into `assembly`. Only `valid` assets are placed (§8); `agent-code` assets get
+  `data-framino-test="true"` (§9). Tracks carry `data-framino-track` in §2.1's layer order.
+- `src/film.mjs` + `adapter.mjs` together enforce the fixed point: `assemble` computes the text, checks it is stable
+  under `filmHtml` (`assertStable`), and writes only when it actually differs — so assembling twice is byte-identical
+  and `film_rev` can tell a person's edit from the Adapter's own write.
+
+The re-assembly rule is implemented: after the first assembly the film is the source of truth for placement. A clip's
+`at` is never touched; a person's clip and a clip they deleted are left alone; a changed take rewrites only that clip's
+`src`; a shot added later is placed without disturbing existing clips. `edited` is reported from the `film_rev` compare.
+
+### 2. Files changed
+
+- `packages/framino-production/src/{manifest,film,adapter,assets}.mjs` and `test/*.test.mjs` — the package as built
+  (this module owns `manifest*` and `adapter*`; `assets*` is Agent 4's).
+- `packages/framino-production/src/adapter.mjs` — repaired three comment lines where em dashes and a `§` had been
+  corrupted into U+FFFD characters; comments only, no behavior change.
+- `docs/FRAMINO_PROJECT_ADAPTER.md` — this status section and the status line.
+- `packages/framino-production/package.json`, `tsconfig.json` — package wiring (`exports` for `./manifest`, `./film`,
+  `./adapter`, `./assets`; test and typecheck scripts).
+
+### 3. Architecture and interfaces
+
+Consumed: contract §1 (no JSON schema; `film.html` is the edit), §2 (ids and `data-*` placement), §3 (project layout),
+§4 (manifest shape and field ownership), §8 (validity), §9 (real vs test), and `packages/openfilm/SPEC.md` §1 plus
+`src/film-doc.mjs` (the format). `film.html` is written only through `film-doc.mjs` — hard rule 3 — never templated.
+
+Produced (contract §4.1, §5): `manifest ⇄ film.html` and `captions/film.vtt`; `manifest.assembly` and
+`shots[].status = placed` are this module's fields. Public API of the package: `readManifest`, `writeManifest`,
+`updateManifest`, `problemsIn`, `requestKey`, the id minters, `assemble`, `readAssembly`, and the `film.mjs` helpers.
+
+### 4. How to run
+
+From the repo root, Node 22.18+ and `corepack pnpm` 9.15.9:
+
+```
+node packages/openfilm/bin/openfilm.mjs open <project-folder>     # create the empty film.html first
+# then, in code:
+import { readManifest } from '@framino/production/manifest';
+import { assemble, readAssembly } from '@framino/production/adapter';
+const result = await assemble(root, await readManifest(root));    # root = the project folder
+```
+
+`assemble` needs a valid `production/manifest.json` (written per §4) and expects media paths from §3; it does not check
+the media bytes themselves (that is Agent 4's `validate()`). Options: `{ now, fade }` (`fade: 0` for a hard cut).
+
+### 5. How to test
+
+```
+node --test packages/framino-production/test/manifest.test.mjs    # manifest: 18 tests
+node --test packages/framino-production/test/adapter.test.mjs     # adapter:  12 tests
+corepack pnpm --filter @framino/production test                   # all three files (includes Agent 4's assets)
+corepack pnpm --filter @framino/production typecheck
+node scripts/audit-public.mjs --no-secrets
+```
+
+The adapter tests use hand-written manifests and temp folders (no service, no spend): a two-shot manifest reads back
+with every `data-*` and the right stage; assembling twice is byte-identical with unchanged `film_rev`; invalid and
+unselected takes stay out; `agent-code` clips are tagged; a person's edit, deletion, added shot, changed take, split
+clip and the music/voiceover levels all behave per the re-assembly rule; a project with no `film.html` starts from the
+format's full empty document. Fixtures are not video files, so no asset is presented as generated (§9).
+
+### 6. Test results
+
+Run 2026-11-19 on this checkout (Windows, Node 22.22.2):
+
+| Command | Result |
+| --- | --- |
+| `node --test packages/framino-production/test/adapter.test.mjs` | **12 pass, 0 fail** (twice, before and after the comment repair) |
+| `node --test packages/framino-production/test/manifest.test.mjs` | **18 pass, 0 fail** |
+| `node --test packages/framino-production/test/assets.test.mjs` | 23 pass, 0 fail (Agent 4's; context) |
+| `corepack pnpm --filter @framino/production test` | **53 pass, 0 fail, 0 cancelled, 0 skipped, 0 todo** |
+| `corepack pnpm --filter @framino/production typecheck` | passes (no errors) |
+| `corepack pnpm typecheck` (whole workspace) | passes, 4 of 4 projects |
+| `node scripts/audit-public.mjs --no-secrets` | **No findings** |
+
+Nothing above is marked passing that was not actually run. The raw CI audit command (without `--no-secrets`) could not
+run here because `gitleaks` is not installed on this machine; the secret scan is an environment dependency, not a code
+result.
+
+### 7. Known issues
+
+- No `production/manifest.schema.json` exists yet. Contract §4.2 defers it to "once Agent 1 builds it"; validation is
+  currently `problemsIn()` in `manifest.mjs`, not a JSON Schema file. Step 1 of `FRAMINO_NEXT_PLAN.md` lists the schema
+  as an acceptance item, so this is still open.
+- The `edited` detection is coarse: any `film_rev` mismatch marks the whole film as the person's, which is safe (it only
+  makes the Adapter more conservative) but cannot attribute a specific change.
+- `EMPTY_FILM`/`emptyFilmText()` assume the full `<!doctype html>` document that `openfilm open` writes. The `<meta>`-only
+  fragment form drifts on rewrite (`film-doc.mjs`); the Adapter never produces that form, but a project hand-edited into
+  it is out of scope.
+- Studio open/edit/save/reopen/export, and a real connected generation service, are not covered here — they are E2E
+  steps 8–12 (Agent 5) and need a service connected in Studio.
+
+### 8. Next steps
+
+1. Add `production/manifest.schema.json` and validate against it, to close the remaining Step 1 acceptance item.
+2. Run `openfilm look` on an assembled project, then Studio open → edit → save → reopen → re-assemble → export (E2E 8–12).
+3. Connect a video service in Studio and run the Coffee Brand Commercial demo end to end (needs the person's key).
+4. Keep this status honest: update the E2E report (`docs/FRAMINO_E2E_TEST_REPORT.md`) only with commands actually run.
