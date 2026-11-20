@@ -1,0 +1,25 @@
+{
+  "name": "@framino/production",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Framino's Phase 2 production layer: the Production Manifest, the Project Adapter that writes film.html, and the asset pipeline that validates what lands. Not published.",
+  "main": "./src/manifest.mjs",
+  "exports": {
+    ".": "./src/manifest.mjs",
+    "./manifest": "./src/manifest.mjs",
+    "./film": "./src/film.mjs",
+    "./adapter": "./src/adapter.mjs",
+    "./assets": "./src/assets.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

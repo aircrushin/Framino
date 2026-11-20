@@ -155,6 +155,7 @@ window.film = {
 | [AGENTS.md](AGENTS.md) | rules for every coding agent (Claude Code reads it through `CLAUDE.md`) |
 | [docs/FRAMINO_ARCHITECTURE.md](docs/FRAMINO_ARCHITECTURE.md) | the real architecture and where the Phase 2 modules plug in |
 | [docs/FRAMINO_INTEGRATION_CONTRACT.md](docs/FRAMINO_INTEGRATION_CONTRACT.md) | IDs, the Production Manifest, errors and ownership shared by the Phase 2 modules |
+| [docs/FRAMINO_NEXT_PLAN.md](docs/FRAMINO_NEXT_PLAN.md) | the Phase 2 execution order, verified against the code at `d63f7ef` |
 | [docs/FRAMINO_ARCHITECTURE_AUDIT.md](docs/FRAMINO_ARCHITECTURE_AUDIT.md) | the inherited architecture: modules, project format, save/export flow, what may not be touched |
 | [docs/FRAMINO_DESIGN_SYSTEM.md](docs/FRAMINO_DESIGN_SYSTEM.md) | tokens, type, geometry, component rules of the studio |
 | [docs/FRAMINO_IMPLEMENTATION_REPORT.md](docs/FRAMINO_IMPLEMENTATION_REPORT.md) | what this phase changed, what was verified, what is not done |
