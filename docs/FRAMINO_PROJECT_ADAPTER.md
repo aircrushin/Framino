@@ -60,6 +60,8 @@ The manifest ⇄ film.html chain of contract §1–§4, §8, §9, in four module
 - `src/film.mjs` + `adapter.mjs` together enforce the fixed point: `assemble` computes the text, checks it is stable
   under `filmHtml` (`assertStable`), and writes only when it actually differs — so assembling twice is byte-identical
   and `film_rev` can tell a person's edit from the Adapter's own write.
+- `production/manifest.schema.json`: the JSON Schema of §4.2, draft 2020-12. `test/schema.test.mjs` (4 tests) proves it
+  accepts a real manifest, rejects the fields both it and `problemsIn()` can check, and keeps unknown fields (§4.2).
 
 The re-assembly rule is implemented: after the first assembly the film is the source of truth for placement. A clip's
 `at` is never touched; a person's clip and a clip they deleted are left alone; a changed take rewrites only that clip's
@@ -71,6 +73,8 @@ The re-assembly rule is implemented: after the first assembly the film is the so
   (this module owns `manifest*` and `adapter*`; `assets*` is Agent 4's).
 - `packages/framino-production/src/adapter.mjs` — repaired three comment lines where em dashes and a `§` had been
   corrupted into U+FFFD characters; comments only, no behavior change.
+- `packages/framino-production/production/manifest.schema.json` + `test/schema.test.mjs` (2026-11-20) — the §4.2
+  schema and its consistency test, closing the last Step 1 acceptance item.
 - `docs/FRAMINO_PROJECT_ADAPTER.md` — this status section and the status line.
 - `packages/framino-production/package.json`, `tsconfig.json` — package wiring (`exports` for `./manifest`, `./film`,
   `./adapter`, `./assets`; test and typecheck scripts).
@@ -105,7 +109,8 @@ the media bytes themselves (that is Agent 4's `validate()`). Options: `{ now, fa
 ```
 node --test packages/framino-production/test/manifest.test.mjs    # manifest: 18 tests
 node --test packages/framino-production/test/adapter.test.mjs     # adapter:  12 tests
-corepack pnpm --filter @framino/production test                   # all three files (includes Agent 4's assets)
+node --test packages/framino-production/test/schema.test.mjs      # schema:    4 tests
+corepack pnpm --filter @framino/production test                   # all five files (includes Agent 4's assets)
 corepack pnpm --filter @framino/production typecheck
 node scripts/audit-public.mjs --no-secrets
 ```
@@ -125,7 +130,8 @@ Run 2026-11-19 on this checkout (Windows, Node 22.22.2):
 | `node --test packages/framino-production/test/adapter.test.mjs` | **12 pass, 0 fail** (twice, before and after the comment repair) |
 | `node --test packages/framino-production/test/manifest.test.mjs` | **18 pass, 0 fail** |
 | `node --test packages/framino-production/test/assets.test.mjs` | 23 pass, 0 fail (Agent 4's; context) |
-| `corepack pnpm --filter @framino/production test` | **53 pass, 0 fail, 0 cancelled, 0 skipped, 0 todo** |
+| `node --test packages/framino-production/test/schema.test.mjs` | **4 pass, 0 fail** (2026-11-20) |
+| `corepack pnpm --filter @framino/production test` | **57 pass, 0 fail, 0 cancelled, 0 skipped, 0 todo** (2026-11-20; 53 before the schema was added) |
 | `corepack pnpm --filter @framino/production typecheck` | passes (no errors) |
 | `corepack pnpm typecheck` (whole workspace) | passes, 4 of 4 projects |
 | `node scripts/audit-public.mjs --no-secrets` | **No findings** |
@@ -136,9 +142,12 @@ result.
 
 ### 7. Known issues
 
-- No `production/manifest.schema.json` exists yet. Contract §4.2 defers it to "once Agent 1 builds it"; validation is
-  currently `problemsIn()` in `manifest.mjs`, not a JSON Schema file. Step 1 of `FRAMINO_NEXT_PLAN.md` lists the schema
-  as an acceptance item, so this is still open.
+- The schema is checked by a test-only validator that implements only the keywords the schema uses; no general JSON
+  Schema library was added. A full validator would be ajv, which is not in the dependency tree and would require
+  editing `package.json` and the lockfile (Agent 5's files, AGENTS.md rule 5). Production validation stays in
+  `problemsIn()`; the schema is the published §4.2 contract for tooling and people.
+- JSON Schema cannot express id uniqueness and cross-section references (e.g. a task's `shot_id` naming a real shot);
+  those rules live only in `problemsIn()`, so the schema alone is not a complete validator.
 - The `edited` detection is coarse: any `film_rev` mismatch marks the whole film as the person's, which is safe (it only
   makes the Adapter more conservative) but cannot attribute a specific change.
 - `EMPTY_FILM`/`emptyFilmText()` assume the full `<!doctype html>` document that `openfilm open` writes. The `<meta>`-only
@@ -149,7 +158,6 @@ result.
 
 ### 8. Next steps
 
-1. Add `production/manifest.schema.json` and validate against it, to close the remaining Step 1 acceptance item.
-2. Run `openfilm look` on an assembled project, then Studio open → edit → save → reopen → re-assemble → export (E2E 8–12).
-3. Connect a video service in Studio and run the Coffee Brand Commercial demo end to end (needs the person's key).
-4. Keep this status honest: update the E2E report (`docs/FRAMINO_E2E_TEST_REPORT.md`) only with commands actually run.
+1. Run `openfilm look` on an assembled project, then Studio open → edit → save → reopen → re-assemble → export (E2E 8–12).
+2. Connect a video service in Studio and run the Coffee Brand Commercial demo end to end (needs the person's key).
+3. Keep this status honest: update the E2E report (`docs/FRAMINO_E2E_TEST_REPORT.md`) only with commands actually run.

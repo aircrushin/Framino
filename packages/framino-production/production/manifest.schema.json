@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://framino.dev/schemas/manifest.schema.json",
+  "title": "Framino Production Manifest",
+  "description": "The Production Manifest of docs/FRAMINO_INTEGRATION_CONTRACT.md section 4: a plan and ledger, not the edit. Unknown fields are kept on rewrite and ignored, so additionalProperties is allowed throughout. Uniqueness of ids and cross-references between sections are enforced by problemsIn() in src/manifest.mjs, which JSON Schema cannot express.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "manifest_version", "project_id", "title", "created_at", "updated_at",
+    "brief", "video", "approval", "scenes", "shots", "assets", "tasks"
+  ],
+  "properties": {
+    "manifest_version": { "type": "string", "const": "0.2" },
+    "project_id": { "type": "string", "pattern": "^[a-z0-9-]{1,64}$" },
+    "title": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "minLength": 1 },
+    "updated_at": { "type": "string", "minLength": 1 },
+    "brief": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["idea", "aspect_ratio", "duration_sec", "language"],
+      "properties": {
+        "idea": { "type": "string" },
+        "audience": { "type": "string" },
+        "platform": { "type": "string" },
+        "language": { "type": "string", "minLength": 1 },
+        "duration_sec": { "type": "number", "exclusiveMinimum": 0 },
+        "aspect_ratio": {
+          "type": "string",
+          "enum": ["16:9", "9:16", "4:3", "3:4", "1:1", "21:9", "9:21", "3:2", "2:3", "adaptive"]
+        },
+        "style": { "type": "string" },
+        "limits": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "max_generated_seconds": { "type": "number", "exclusiveMinimum": 0 },
+            "max_takes_per_shot": { "type": "integer", "exclusiveMinimum": 0 }
+          }
+        }
+      }
+    },
+    "video": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["width", "height", "fps"],
+      "properties": {
+        "width": { "type": "integer", "exclusiveMinimum": 0 },
+        "height": { "type": "integer", "exclusiveMinimum": 0 },
+        "fps": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["script", "storyboard"],
+      "properties": {
+        "script": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["state"],
+          "properties": { "state": { "type": "string", "enum": ["draft", "approved"] } }
+        },
+        "storyboard": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["state"],
+          "properties": { "state": { "type": "string", "enum": ["draft", "approved"] } }
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["scene_id", "shots"],
+        "properties": {
+          "scene_id": { "type": "string", "pattern": "^sc\\d{2}$" },
+          "title": { "type": "string" },
+          "shots": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "shots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["shot_id", "scene_id", "order", "duration_sec", "generation_prompt"],
+        "properties": {
+          "shot_id": { "type": "string", "pattern": "^sh\\d{2}$" },
+          "scene_id": { "type": "string", "pattern": "^sc\\d{2}$" },
+          "order": { "type": "integer", "exclusiveMinimum": 0 },
+          "duration_sec": { "type": "number", "exclusiveMinimum": 0 },
+          "visual_description": { "type": "string" },
+          "camera_movement": { "type": "string" },
+          "camera_angle": { "type": "string" },
+          "lighting": { "type": "string" },
+          "composition": { "type": "string" },
+          "generation_prompt": { "type": "string", "minLength": 1 },
+          "reference_assets": { "type": "array", "items": { "type": "string" } },
+          "voiceover": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": ["16:9", "9:16", "4:3", "3:4", "1:1", "21:9", "9:21", "3:2", "2:3", "adaptive"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["planned", "generating", "generated", "failed", "placed"]
+          },
+          "takes": { "type": "array", "items": { "type": "string" } },
+          "selected_take": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["asset_id", "kind", "status", "path", "origin"],
+        "properties": {
+          "asset_id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["video", "image", "voiceover", "music", "sfx", "subtitle"] },
+          "shot_id": { "type": ["string", "null"] },
+          "take": { "type": "integer", "exclusiveMinimum": 0 },
+          "path": { "type": "string", "minLength": 1 },
+          "origin": { "type": "string", "pattern": "^(provider:.+|openfilm-service|local|library|person|agent-code)$" },
+          "provider": { "type": "string" },
+          "model": { "type": "string" },
+          "task_id": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending", "downloaded", "valid", "invalid"] },
+          "invalid_reason": { "type": ["string", "null"] },
+          "media": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "duration_sec": { "type": "number" },
+              "width": { "type": "integer" },
+              "height": { "type": "integer" },
+              "fps": { "type": "number" },
+              "video_codec": { "type": "string" },
+              "audio_codec": { "type": "string" },
+              "audio_channels": { "type": "integer" },
+              "sample_rate": { "type": "integer" },
+              "size_bytes": { "type": "integer" },
+              "sha256": { "type": "string" }
+            }
+          },
+          "thumbnail": { "type": "string" },
+          "created_at": { "type": "string" }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["task_id", "shot_id", "asset_id", "request_key", "state", "attempts"],
+        "properties": {
+          "task_id": { "type": "string", "minLength": 1 },
+          "shot_id": { "type": "string", "minLength": 1 },
+          "asset_id": { "type": "string", "minLength": 1 },
+          "request_key": { "type": "string", "minLength": 1 },
+          "provider": { "type": "string" },
+          "model": { "type": "string" },
+          "request": { "type": "object", "additionalProperties": true },
+          "state": { "type": "string", "enum": ["running", "succeeded", "failed", "abandoned"] },
+          "attempts": { "type": "integer", "minimum": 1 },
+          "error": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["code", "message", "retryable"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["invalid_request", "content_rejected", "balance", "rate_limited", "provider_error", "timeout", "not_connected", "asset_invalid"]
+              },
+              "message": { "type": "string" },
+              "retryable": { "type": "boolean" }
+            }
+          },
+          "receipt": { "type": "object", "additionalProperties": true },
+          "created_at": { "type": "string" },
+          "updated_at": { "type": "string" }
+        }
+      }
+    },
+    "audio": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "music": { "type": ["string", "null"] },
+        "music_volume": { "type": "number", "minimum": 0 },
+        "voiceover_volume": { "type": "number", "minimum": 0 }
+      }
+    },
+    "captions": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "path": { "type": "string" },
+        "language": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
+    "assembly": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "film_rev": { "type": ["string", "null"] },
+        "at": { "type": ["string", "null"] },
+        "placed": {
+          "type": "object",
+          "additionalProperties": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}
