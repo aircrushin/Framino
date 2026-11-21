@@ -125,6 +125,14 @@ and timeline skin. This does **not** mean any AI production capability exists. R
 Integration order: (1) freeze the contract → (2) generation ledger, Pipeline, Adapter in parallel → (3) integrate the Skill →
 (4) E2E → (5) verify full edit and export in Studio.
 
+All five modules are implemented. On 2026-11-21 (`main` @ `310236a`) the **offline E2E ran green**: 9 of the 12
+report steps passed for real (idea → brief, script, storyboard, asset validation, assembly, `openfilm look`, Studio
+open with 0 console errors, edit→reopen→re-assemble, and MP4 export verified by ffprobe); steps 4–6 (real generation,
+crash-resume against a live call, regenerate) are blocked on a person connecting a video service. Every clip in that
+run is an ffmpeg fixture (`origin: agent-code`, tagged `data-framino-test="true"`), not model output. Driver:
+`packages/framino-production/test/e2e-offline.mjs`; results: `docs/FRAMINO_E2E_TEST_REPORT.md`. The remaining Phase 2
+work is the person-approved connected-service run, not code.
+
 ## 8. MVP target
 
 The question to answer: **can a person, with their own coding agent, cheaply produce a complete video project
