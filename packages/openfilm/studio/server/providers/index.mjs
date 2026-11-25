@@ -32,6 +32,7 @@ import groq from './groq.mjs';
 import azure from './azure.mjs';
 import doubao from './doubao.mjs';
 import mimo from './mimo.mjs';
+import minimax from './minimax.mjs';
 import keenable from './keenable.mjs';
 import openfilm from './openfilm.mjs';
 import local from './local.mjs';
@@ -44,7 +45,7 @@ import { addedProblems, addedProviders } from './added.mjs';
  */
 
 /** The providers paid with the person's own key, and Local services, which takes none. */
-const BUILT_IN = [elevenlabs, inworld, cartesia, openai, google, fal, openrouter, pexels, pixabay, brave, tavily, groq, azure, doubao, mimo, keenable, openfilm, local];
+const BUILT_IN = [elevenlabs, inworld, cartesia, openai, google, fal, openrouter, pexels, pixabay, brave, tavily, groq, azure, doubao, mimo, minimax, keenable, openfilm, local];
 /** Those, then the ones the person added (added.mjs), as last read (changed in place). */
 const OWN = [...BUILT_IN];
 

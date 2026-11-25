@@ -416,8 +416,8 @@ export function AgentsSection() {
   const helpDiagnosis = diagnosis?.id === help ? diagnosis : null;
   const helpError = helpAgent ? error?.id === help ? error.text : helpAgent.error ?? (helpAgent.problem ? `${t('settings.agents.unreadable')} ${helpAgent.problem}` : undefined) : undefined;
   const byId = (id: HostAgentId) => list.find((a) => a.id === id);
-  /* always listed: Codex, Claude Code, OpenFilm and your own key; the others appear here once switched on */
-  const always = (['codex', 'claude', 'openfilm', 'byok'] as const).map(byId).filter((a): a is HostAgent => Boolean(a));
+  /* always listed: Codex, Claude Code and your own key; the others appear here once switched on */
+  const always = (['codex', 'claude', 'byok'] as const).map(byId).filter((a): a is HostAgent => Boolean(a));
   const others = list.filter((a) => OWN.includes(a.id) && !always.includes(a));
   const more = others.filter((a) => !a.shown).sort((a, b) => (MORE_ORDER[a.id] ?? 2) - (MORE_ORDER[b.id] ?? 2));
   const openfilmAgent = byId('openfilm');

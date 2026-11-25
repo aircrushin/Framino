@@ -48,10 +48,8 @@ const chipClass = 'inline-flex h-9 items-center gap-2 rounded-full border px-3.5
 export function ServicesBar({ hook, onOpen, local }: { hook: ProvidersHook; onOpen: (id: string) => void; local?: React.ReactNode }) {
   const t = useT();
   const rows = hook.state?.providers ?? [];
-  /* OpenFilm's own first, then the others */
-  const own = rows.find((p) => p.id === 'openfilm');
   /* Local services has its own chip (`local`) */
-  const order = providerOrder(rows.filter((p) => p !== own && p.id !== 'local'));
+  const order = providerOrder(rows.filter((p) => p.id !== 'openfilm' && p.id !== 'local'));
   const [all, setAll] = React.useState(false);
   const chip = (p: OwnProvider) => (
     <button key={p.id} type="button" onClick={() => onOpen(p.id)}
@@ -65,7 +63,6 @@ export function ServicesBar({ hook, onOpen, local }: { hook: ProvidersHook; onOp
   return (
     <div className="mb-10">
       <div className="flex flex-wrap gap-2">
-        {own ? chip(own) : null}
         {order.connected.map(chip)}
         {order.recommended.map(chip)}
         {all ? order.more.map(chip) : null}

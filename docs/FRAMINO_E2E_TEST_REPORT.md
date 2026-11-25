@@ -1,9 +1,10 @@
 # Framino — End-to-End Test Report (Agent 5)
 
-> Status: **offline run passed 2026-11-21** on `main` @ `310236a`. Owner: Agent 5. Every Real / test value below came
-> from a command that was run; nothing is filled in from an expectation. The driver is
-> `packages/framino-production/test/e2e-offline.mjs` (re-run it with `node packages/framino-production/test/e2e-offline.mjs`).
-> Steps 4–6 remain blocked on a connected video service; they are not reported as passing.
+> Status: **live MiniMax H3 closed-loop run passed 2026-11-25** (12/12 steps real); **offline run passed 2026-11-21** on
+> `main` @ `310236a`. Owner: Agent 5. Every Real / test value below came from a command that was run; nothing is filled in
+> from an expectation. Drivers:
+> - Offline: `node packages/framino-production/test/e2e-offline.mjs`
+> - Live MiniMax H3: `MINIMAX_API_KEY=... node packages/framino-production/test/e2e-minimax.mjs`
 
 ## Scenario: Coffee Brand Commercial
 
@@ -30,6 +31,22 @@ with real model output is the same flow with a connected service and is still to
 Result: **9 real offline passes, 3 blocked on a connected service, 0 failures.**
 
 ## Runs
+
+**2026-11-25 — Live MiniMax H3 closed-loop run (Windows, Node 22, ffmpeg/ffprobe, `provider:minimax` / `MiniMax-H3`).**
+
+Command:
+```
+E2E_KEEP=1 node packages/framino-production/test/e2e-minimax.mjs
+```
+Summary of verified steps (all 12 passed; 3 real MiniMax H3 clips `1344x768@4.46s` with `origin: provider:minimax`, 2 synthetic audio fixtures with `origin: agent-code`):
+- Steps 1–3: Idea -> `manifest.brief`, script and 2-shot storyboard approved (`problemsIn() = 0`).
+- Step 4: Real generation via `openfilm get video --via minimax --model MiniMax-H3 --duration 4 --resolution 768p --aspect-ratio 16:9 --yes` landed `assets/video/sh01-t1.mp4` and `assets/video/sh02-t1.mp4`.
+- Step 5: Real mid-run crash recovery (`recover()` on an interrupted `running` task `t1-sh01` whose clip was already on disk) settled `t1-sh01 -> succeeded` and `planCall(sh01, t1) = skip` without re-submitting.
+- Step 6: Real regeneration of `sh01` into `assets/video/sh01-t2.mp4` (`nextTake(sh01) = 2`); `sh01-t1.mp4` and `sh02-t1.mp4` verified byte-identical by sha256.
+- Step 7: All 3 MiniMax takes (`1344x768@4.46s`) validated `status = valid`; synthetic VO + music bed validated; corrupt `.mp4` rejected as `invalid`.
+- Step 8: `assemble` fixed point verified (`film_rev` unchanged on 2nd pass); real video clips untagged, synthetic audio tagged `data-framino-test="true"`; `openfilm look` passed with 0 errors.
+- Steps 9–11: Opened in Studio (0 console/page errors); edited shot `at` (`0 -> 0.25 s`), music `volume` (`0.25 -> 0.1`), and caption line 0; reloaded Studio cleanly; re-assemble detected `edited: true` and preserved `film.html` byte-for-byte.
+- Step 12: `openfilm render --fps 24 --workers 2` produced `coffee-minimax.mp4` (192 frames, 23.8 s, `h264_nvenc`); ffprobe verified `8.00 s, 1280x720, h264 + aac`.
 
 **2026-11-21 — Windows, Node 22.22.2, ffmpeg/ffprobe 8.0.1, `main` @ `310236a`, clean tree.**
 

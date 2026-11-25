@@ -105,7 +105,7 @@ function ModelRow({ verb, hook, onConnect }: { verb: ProviderVerb; hook: Provide
   const state = hook.state!;
   const label = t(`settings.providers.verbs.${verb}`);
   const chosen = state.use[verb] ?? '';
-  const order = providerOrder(state.providers.filter((p) => p.verbs.includes(verb) || p.id === chosen));
+  const order = providerOrder(state.providers.filter((p) => p.id !== 'openfilm' && (p.verbs.includes(verb) || p.id === chosen)));
   /* the model chosen, or the provider's first when it has none or no longer makes it (as a run does) */
   const models = state.providers.find((p) => p.id === chosen)?.models[verb] ?? [];
   const model = models.find((m) => m.id === state.model[verb]) ?? models[0];

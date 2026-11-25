@@ -181,7 +181,7 @@ export function offeredChoices<T extends { value: unknown }>(agent: LocalAgentId
 
 /** The agents the menu lists: the ones switched on in Settings, in the roster's order. */
 export function shownAgents(roster: RosterAgent[] | null): RosterAgent[] {
-  return (roster ?? []).filter((a) => a.shown);
+  return (roster ?? []).filter((a) => a.shown && a.id !== 'openfilm');
 }
 
 /** The agent the chat uses: the one picked while it is shown and ready, else the first shown one that is ready. */
