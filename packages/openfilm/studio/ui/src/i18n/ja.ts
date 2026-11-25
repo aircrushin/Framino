@@ -2646,6 +2646,7 @@ export const ja: Words = {
         antigravity: 'Google Antigravity 自体（ターミナルで agy を起動して /logout）',
         opencode: 'OpenCode アプリ、またはターミナルの opencode auth switch',
         codebuddy: 'CodeBuddy 自体（ターミナルで codebuddy を起動）',
+        workbuddy: 'WorkBuddy アプリ',
         qwen: 'Qwen Code 自体（ターミナルで qwen を起動して /auth）',
         kimi: 'Kimi 自体（ターミナルで kimi login）',
         deepseek: 'DeepSeek Harness アプリ',

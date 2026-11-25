@@ -2648,6 +2648,7 @@ export const en = {
         antigravity: 'Google Antigravity itself: run agy in a terminal and use /logout',
         opencode: 'the OpenCode app, or with opencode auth switch in a terminal',
         codebuddy: 'CodeBuddy itself: run codebuddy in a terminal',
+        workbuddy: 'the WorkBuddy app',
         qwen: 'Qwen Code itself: run qwen in a terminal and use /auth',
         kimi: 'Kimi itself: run kimi login in a terminal',
         deepseek: 'the DeepSeek Harness app',

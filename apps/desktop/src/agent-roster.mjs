@@ -4,8 +4,8 @@
  *   · openfilm — the app's own agent (Pi), using the same Framino account as Settings → Services. The cloud offers
  *     its model menu and relays requests to OpenRouter; signing out or switching accounts applies to both places.
  *
- *   · codex, claude, copilot, cursor, opencode, codebuddy, qwen, kimi, minimax, deepseek, antigravity — the person's own agents
- *     (agents.mjs): Codex, Claude Code, GitHub Copilot, Cursor, OpenCode, CodeBuddy, Qwen Code, Kimi, MiniMax Code,
+ *   · codex, claude, copilot, cursor, opencode, codebuddy, workbuddy, qwen, kimi, minimax, deepseek, antigravity — the person's own agents
+ *     (agents.mjs): Codex, Claude Code, GitHub Copilot, Cursor, OpenCode, CodeBuddy, WorkBuddy, Qwen Code, Kimi, MiniMax Code,
  *     DeepSeek Harness and Google Antigravity. Each uses the account its own program is signed in to: connecting opens Terminal for its own
  *     sign-in command only when it is signed out (never Codex's or DeepSeek Harness's: each is signed in in its own
  *     app, so one found is connected), disconnecting only stops Framino using it, and connecting again uses whichever

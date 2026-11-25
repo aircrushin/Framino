@@ -2647,6 +2647,7 @@ export const zhCN: Words = {
         antigravity: 'Google Antigravity 本身：在终端运行 agy，然后用 /logout',
         opencode: 'OpenCode 应用，或在终端运行 opencode auth switch',
         codebuddy: 'CodeBuddy 本身：在终端运行 codebuddy',
+        workbuddy: 'WorkBuddy 应用',
         qwen: 'Qwen Code 本身：在终端运行 qwen，然后用 /auth',
         kimi: 'Kimi 本身：在终端运行 kimi login',
         deepseek: 'DeepSeek Harness 应用',

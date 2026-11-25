@@ -2646,6 +2646,7 @@ export const es: Words = {
         antigravity: 'el propio Google Antigravity: ejecuta agy en una terminal y usa /logout',
         opencode: 'la app de OpenCode, o con opencode auth switch en una terminal',
         codebuddy: 'el propio CodeBuddy: ejecuta codebuddy en una terminal',
+        workbuddy: 'la app de WorkBuddy',
         qwen: 'el propio Qwen Code: ejecuta qwen en una terminal y usa /auth',
         kimi: 'el propio Kimi: ejecuta kimi login en una terminal',
         deepseek: 'la app de DeepSeek Harness',

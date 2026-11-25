@@ -37,7 +37,7 @@ export function AgentConnectionHelp({ agent, status, report, checking, hint, err
   }, []);
 
   const setup = agent.setupRequired === 'code-tab' ? 'claudeSetup' : agent.path ? 'helpFound'
-    : agent.app ? 'helpDesktopOnly' : ['codex', 'copilot', 'opencode', 'deepseek'].includes(agent.id) ? 'helpBundled' : 'helpInstall';
+    : agent.app ? 'helpDesktopOnly' : ['codex', 'copilot', 'opencode', 'deepseek', 'workbuddy'].includes(agent.id) ? 'helpBundled' : 'helpInstall';
   const words = (key: string) => t(`settings.agents.${key}`).replaceAll('{name}', agent.name);
   const raw = [error, agent.connectionIssue?.message, report?.text].filter(Boolean).join('\n\n');
   const website = (() => {

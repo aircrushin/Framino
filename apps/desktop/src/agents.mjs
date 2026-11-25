@@ -33,7 +33,7 @@ import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from '
 import { arch, homedir, release, tmpdir } from 'node:os';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, win32 } from 'node:path';
-import { Readable, Writable } from 'node:stream';
+import { Readable, Transform, Writable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as acp from '@agentclientprotocol/sdk';
 import { PATH_SEP, childEnvironment, lastPathSource, loginShellEnvironment, loginShellVariables, shellSubset } from './environment.mjs';
@@ -91,6 +91,20 @@ export const AGENTS = Object.freeze({
      international site (www.codebuddy.ai) whichever site it was signed in on, out of reach from China */
   codebuddy: { label: AGENT_DEFINITIONS.codebuddy.name, args: ['--acp', '--permission-mode', 'bypassPermissions'], login: [], approve: true,
     defaults: { CODEBUDDY_INTERNET_ENVIRONMENT: 'internal' } },
+  /* WorkBuddy bundles its headless CLI (`codebuddy-lite-wb.mjs`): starts ACP stdio alongside `--serve`, prints a
+     short HTTP server banner on stdout before JSON-RPC, and reuses the desktop app's `~/.workbuddy` credentials. */
+  workbuddy: {
+    label: AGENT_DEFINITIONS.workbuddy.name,
+    args: ['--serve', '--acp', '--acp-transport', 'stdio', '--permission-mode', 'bypassPermissions'],
+    login: null,
+    approve: true,
+    stripStdoutBanner: true,
+    defaults: {
+      CODEBUDDY_INTERNET_ENVIRONMENT: 'internal',
+      CODEBUDDY_FORCE_LITE_WB_BUNDLE: '1',
+      CODEBUDDY_CONFIG_DIR: join(homedir(), '.workbuddy'),
+    },
+  },
   qwen: { label: AGENT_DEFINITIONS.qwen.name, args: ['--acp', '--approval-mode', 'yolo'], login: [], approve: true },
   kimi: { label: AGENT_DEFINITIONS.kimi.name, args: ['acp'], login: ['login'], approve: true },
   minimax: { label: AGENT_DEFINITIONS.minimax.name, args: ['acp'], login: ['login'], logout: ['logout'], approve: true },
@@ -601,6 +615,30 @@ export function agentShell(id, shell) {
   return AGENTS[id]?.fromShell?.(shell) ?? shell;
 }
 
+/** Keeps only JSON-RPC lines from an agent's stdout when its CLI prints a startup banner before ACP messages. */
+function acpStdout(stream, stripBanner) {
+  if (!stripBanner) return Readable.toWeb(stream);
+  let buf = '';
+  const filter = new Transform({
+    transform(chunk, _enc, cb) {
+      buf += chunk.toString('utf8');
+      const lines = buf.split(/\r?\n/);
+      buf = lines.pop() ?? '';
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('{')) this.push(`${trimmed}\n`);
+      }
+      cb();
+    },
+    flush(cb) {
+      const trimmed = buf.trim();
+      if (trimmed.startsWith('{')) this.push(`${trimmed}\n`);
+      cb();
+    },
+  });
+  return Readable.toWeb(stream.pipe(filter));
+}
+
 /**
  * The ways an agent's adapter offers to sign in in a terminal (ACP terminal auth; Claude Code's: its subscription and
  * Anthropic Console). `[{ id, name, description?, args, env }]`, asked of the adapter as it shakes hands; none for an
@@ -616,7 +654,7 @@ export async function agentSignInMethods(id) {
   const child = spawn(launch.cmd, launch.args, { ...OWN_GROUP, env: childEnvironment({ shell, extra: launch.env }), stdio: ['pipe', 'pipe', 'ignore'], windowsHide: true });
   child.once('error', () => {});
   try {
-    const conn = acp.client({ name: 'openfilm-desktop' }).connect(acp.ndJsonStream(Writable.toWeb(child.stdin), Readable.toWeb(child.stdout)));
+    const conn = acp.client({ name: 'openfilm-desktop' }).connect(acp.ndJsonStream(Writable.toWeb(child.stdin), acpStdout(child.stdout, spec.stripStdoutBanner)));
     const init = await Promise.race([
       conn.agent.request(acp.methods.agent.initialize, { protocolVersion: acp.PROTOCOL_VERSION, clientCapabilities: CLIENT_CAPABILITIES, clientInfo: CLIENT_INFO }),
       new Promise((_, fail) => setTimeout(() => fail(new Error('timed out')), 30_000)),
@@ -1294,7 +1332,7 @@ export class AgentSession {
     this.child.once('exit', (code) => { LIVE.delete(this); this.exited = { code }; this.opts.onExit?.({ code, stderr: this.stderr }); });
     this.child.once('error', () => {});
 
-    const stream = acp.ndJsonStream(Writable.toWeb(this.child.stdin), Readable.toWeb(this.child.stdout));
+    const stream = acp.ndJsonStream(Writable.toWeb(this.child.stdin), acpStdout(this.child.stdout, this.spec.stripStdoutBanner));
     this.conn = acp.client({ name: 'openfilm-desktop' })
       .onRequest(acp.methods.client.session.requestPermission, async (ctx) => {
         /* a session that may only answer is never given a permission, not even what every agent is let do */

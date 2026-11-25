@@ -9,6 +9,7 @@ const definitions = {
   cursor: { name: 'Cursor', install: 'https://cursor.com/cli' },
   opencode: { name: 'OpenCode', install: 'https://opencode.ai/download' },
   codebuddy: { name: 'CodeBuddy', install: 'https://www.codebuddy.cn/docs/cli/installation' },
+  workbuddy: { name: 'WorkBuddy', install: 'https://www.workbuddy.cn' },
   qwen: { name: 'Qwen Code', install: 'https://github.com/QwenLM/qwen-code' },
   kimi: { name: 'Kimi', install: 'https://www.kimi.com/code/docs/en/kimi-code-cli/guides/getting-started.html' },
   minimax: { name: 'MiniMax Code', install: 'https://www.npmjs.com/package/@minimax-ai/code' },

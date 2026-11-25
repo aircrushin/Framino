@@ -629,6 +629,21 @@ test('DeepSeek Harness in a custom Windows folder: automatic discovery and choos
   assert.equal(notTheAgent('deepseek', shim, { chosen: gui, win: true }), null);
 });
 
+test('WorkBuddy in a custom Windows folder: automatic discovery and choosing the app resolve its bundled CLI', () => {
+  const home = mkdtempSync(join(tmpdir(), 'of-workbuddy-custom-'));
+  const root = join(home, 'custom apps', 'WorkBuddy');
+  const gui = put(join(root, 'WorkBuddy.exe'), peProgram(2));
+  const cli = put(join(root, 'resources', 'app.asar.unpacked', 'cli', 'dist', 'codebuddy-lite-wb.mjs'), 'console.log("2.176.0");\n');
+  const opts = { home, env: { PATH: '' }, pathDirs: [], applicationDirs: [], win: true,
+    windowsApps: [{ name: 'WorkBuddy 5.11.3', directories: [root] }] };
+  assert.equal(detectAgentInstallation('workbuddy', opts).cli, cli);
+  assert.equal(detectAgentInstallation('workbuddy', opts).source, 'app');
+  assert.equal(chosenProgram(root, { names: ['workbuddy'], win: true }), cli);
+  assert.equal(chosenProgram(gui, { names: ['workbuddy'], win: true }), cli);
+  assert.equal(detectAgentInstallation('workbuddy', { ...opts, chosen: gui }).source, 'chosen');
+  assert.equal(notTheAgent('workbuddy', cli, { chosen: gui, win: true }), null);
+});
+
 test('the remaining Windows CLI installers are found outside PATH without counting desktop executables', () => {
   const home = mkdtempSync(join(tmpdir(), 'of-cli-installers-'));
   const local = join(home, 'AppData', 'Local');

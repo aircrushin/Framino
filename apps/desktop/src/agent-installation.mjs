@@ -29,6 +29,8 @@ export const AGENT_PROGRAMS = Object.freeze({
   opencode: { names: ['opencode'], dirs: (home) => [join(home, '.opencode', 'bin')] },
   /* CodeBuddy's own installer keeps it in %LOCALAPPDATA%\codebuddy\bin on Windows */
   codebuddy: { names: ['codebuddy', 'cbc'], dirs: (home, win) => (win ? [join(localAppData(home), 'codebuddy', 'bin')] : []) },
+  /* WorkBuddy bundles its headless CLI inside the desktop app (workbuddyAppCopies / workbuddyInApps) */
+  workbuddy: { names: ['workbuddy'] },
   /* Qwen Code's own installer keeps it in %LOCALAPPDATA%\qwen-code\bin on Windows */
   qwen: { names: ['qwen'], dirs: (home, win) => (win ? [join(localAppData(home), 'qwen-code', 'bin')] : []) },
   /* Kimi Code's own installer keeps it in ~/.kimi-code/bin; kimi-cli (uv) puts it in ~/.local/bin */
@@ -50,6 +52,8 @@ export const AGENT_PROGRAMS = Object.freeze({
 
 /* where DeepSeek Harness is inside DeepSeek Harness.app, its desktop app (macOS) */
 const DSH_IN_APP = 'Contents/Resources/runtime/cli/bin/dsh';
+/* where WorkBuddy keeps its bundled headless CLI inside WorkBuddy.app (macOS) */
+const WORKBUDDY_IN_APP = 'Contents/Resources/app.asar.unpacked/cli/dist/codebuddy-lite-wb.mjs';
 
 /** %LOCALAPPDATA% (Windows). */
 const localAppData = (home) => (home === homedir() && process.env.LOCALAPPDATA) || join(home, 'AppData', 'Local');
@@ -474,6 +478,11 @@ function opencodeInApps(/** @type {string[]} */ applicationDirs) {
   return applicationDirs.map((dir) => join(dir, 'OpenCode.app', OPENCODE_IN_APP)).filter(executableFile);
 }
 
+/** The copies of WorkBuddy's bundled CLI inside WorkBuddy.app in these folders (macOS). */
+function workbuddyInApps(/** @type {string[]} */ applicationDirs) {
+  return applicationDirs.map((dir) => join(dir, 'WorkBuddy.app', WORKBUDDY_IN_APP)).filter(existsFile);
+}
+
 const WINDOWS_APP_NAMES = {
   codex: /^(?:OpenAI\s+)?Codex(?:\s|$)/i,
   claude: /^Claude(?:\s|$)/i,
@@ -481,6 +490,7 @@ const WINDOWS_APP_NAMES = {
   cursor: /^Cursor(?:\s|$)/i,
   opencode: /^OpenCode(?:\s|$)/i,
   codebuddy: /^CodeBuddy(?:\s|$)/i,
+  workbuddy: /^WorkBuddy(?:\s|$)/i,
   kimi: /^Kimi(?:\s|$)/i,
   minimax: /^MiniMax(?:\s|$)/i,
   deepseek: /^DeepSeek Harness(?:\s|$)/i,
@@ -488,7 +498,7 @@ const WINDOWS_APP_NAMES = {
 };
 const WINDOWS_APP_FOLDERS = {
   copilot: /^GitHub Copilot$/i, cursor: /^cursor$/i, opencode: /^(?:@opencodedesktop|OpenCode)$/i,
-  codebuddy: /^CodeBuddy/i, kimi: /^Kimi/i, minimax: /^MiniMax/i, deepseek: /^DeepSeek Harness$/i,
+  codebuddy: /^CodeBuddy/i, workbuddy: /^WorkBuddy/i, kimi: /^Kimi/i, minimax: /^MiniMax/i, deepseek: /^DeepSeek Harness$/i,
   antigravity: /^Antigravity$/i,
 };
 const directoryExists = (dir) => { try { return statSync(dir).isDirectory(); } catch { return false; } };
@@ -517,6 +527,13 @@ export function copilotAppCopies(home = homedir()) {
   return [...versionedPrograms(join(sdk, 'cli'), 'copilot.exe'), ...versionedPrograms(join(sdk, 'runtime'), 'copilot.exe')];
 }
 
+/** Windows WorkBuddy Desktop's bundled headless CLI (`codebuddy-lite-wb.mjs`). */
+export function workbuddyAppCopies(home = homedir(), { windowsApps } = {}) {
+  return windowsAppDirs('workbuddy', home, windowsApps)
+    .map((dir) => join(dir, 'resources', 'app.asar.unpacked', 'cli', 'dist', 'codebuddy-lite-wb.mjs'))
+    .filter(existsFile);
+}
+
 /**
  * The program the person chose for an agent, as it can be started: a `.cmd` shim's target, the `.cmd` beside a
  * PowerShell shim (`.ps1`), the program inside a folder or an app chosen instead of it. Null when it is not there.
@@ -539,17 +556,22 @@ export function chosenProgram(path, { names = [], win = windows, home = homedir(
       if (best) return best;
     }
     const app = folder || (names.includes('dsh') && /^DeepSeek Harness\.exe$/i.test(basename(path)))
-      || (names.includes('opencode') && /^OpenCode\.exe$/i.test(basename(path)));
+      || (names.includes('opencode') && /^OpenCode\.exe$/i.test(basename(path)))
+      || (names.includes('workbuddy') && /^WorkBuddy\.exe$/i.test(basename(path)));
     if (app) {
       const bundled = [
         ...(names.includes('dsh') ? [join(root, 'resources', 'runtime', 'cli', 'bin', 'dsh.cmd')] : []),
         ...(names.includes('opencode') ? [join(root, 'resources', 'opencode-cli.exe')] : []),
+        ...(names.includes('workbuddy') ? [join(root, 'resources', 'app.asar.unpacked', 'cli', 'dist', 'codebuddy-lite-wb.mjs')] : []),
       ].find((file) => presentFile(file) && !notTheAgent('', file, { win: true }));
       if (bundled) return isCmdScript(bundled) ? cmdTarget(bundled) ?? bundled : bundled;
     }
   }
   if (folder) {
-    const inApp = /\.app$/i.test(path) ? [...CODEX_IN_APP, OPENCODE_IN_APP, DSH_IN_APP, ...names.map((n) => `Contents/MacOS/${n}`)].map((p) => join(path, p)).find(executableFile) : null;
+    const inApp = /\.app$/i.test(path)
+      ? [...CODEX_IN_APP, OPENCODE_IN_APP, DSH_IN_APP, ...names.map((n) => `Contents/MacOS/${n}`)].map((p) => join(path, p)).find(executableFile)
+        ?? (names.includes('workbuddy') && existsFile(join(path, WORKBUDDY_IN_APP)) ? join(path, WORKBUDDY_IN_APP) : null)
+      : null;
     return inApp ?? names.map((n) => findExecutable(n, [path, join(path, 'bin')], { PATH: '' }, { win })).find(Boolean) ?? null;
   }
   if (win) {
@@ -594,7 +616,8 @@ export function detectAgentInstallation(id, { home = homedir(), env = process.en
      version is told */
   const copies = id === 'codex' ? [...codexInApps(applicationDirs), ...(win ? codexAppCopies(home) : []), ...others.filter((f) => usable(f) && !notTheAgent(id, f, { win }))]
     : id === 'opencode' ? [...opencodeInApps(applicationDirs), ...(win ? opencodeAppCopies(home, { windowsApps }) : [])]
-      : id === 'copilot' && win ? copilotAppCopies(home) : [];
+      : id === 'copilot' && win ? copilotAppCopies(home)
+        : id === 'workbuddy' ? [...workbuddyInApps(applicationDirs), ...(win ? workbuddyAppCopies(home, { windowsApps }) : [])] : [];
   const versionOf = id === 'opencode' ? opencodeVersionOf : id === 'copilot' ? copilotVersionOf : codexVersionOf;
   if (cli) {
     /* Claude Code both on the PATH (an npm install that is never updated, say) and in the Claude app, which keeps its
@@ -637,6 +660,7 @@ const DESKTOP_APPS = {
     with: (home) => folders(join(home, '.vscode', 'extensions'), /^github\.copilot/i).length > 0 },
   cursor: { name: 'Cursor', mac: /^Cursor\.app$/i, win: (local) => folders(join(local, 'Programs'), /^cursor$/i) },
   codebuddy: { name: 'CodeBuddy', mac: /^CodeBuddy.*\.app$/i, win: (local) => folders(join(local, 'Programs'), /^CodeBuddy/i) },
+  workbuddy: { name: 'WorkBuddy', mac: /^WorkBuddy.*\.app$/i, win: (local) => folders(join(local, 'Programs'), /^WorkBuddy/i) },
   kimi: { name: 'Kimi', mac: /^Kimi.*\.app$/i, win: (local) => folders(join(local, 'Programs'), /^Kimi/i) },
   minimax: { name: 'MiniMax', mac: /^MiniMax.*\.app$/i, win: (local) => folders(join(local, 'Programs'), /^MiniMax/i) },
   antigravity: { name: 'Antigravity', mac: /^(?:Google )?Antigravity\.app$/i, win: (local) => folders(join(local, 'Programs'), /^Antigravity$/i) },
@@ -700,7 +724,11 @@ export function installCommand(id, { win = windows } = {}) {
  */
 export function searchReport(id, { home = homedir(), env = process.env, pathDirs = HOME_BIN_CANDIDATES(home), win = windows, windowsApps } = {}) {
   const program = AGENT_PROGRAMS[id] ?? { names: [id] };
-  const copies = win ? id === 'opencode' ? opencodeAppCopies(home, { windowsApps }) : id === 'copilot' ? copilotAppCopies(home) : [] : [];
+  const copies = win
+    ? id === 'opencode' ? opencodeAppCopies(home, { windowsApps })
+      : id === 'copilot' ? copilotAppCopies(home)
+        : id === 'workbuddy' ? workbuddyAppCopies(home, { windowsApps }) : []
+    : [];
   const registered = win && (id === 'deepseek' || id === 'opencode') ? windowsAppDirs(id, home, windowsApps).map((dir) => id === 'deepseek' ? join(dir, 'resources', 'runtime', 'cli', 'bin') : join(dir, 'resources')) : [];
   const searched = unique([...pathIn(env).split(win ? ';' : delimiter), ...pathDirs, ...(program.dirs?.(home, win) ?? []), ...registered, ...copies.map(dirname)], win);
   const files = [];

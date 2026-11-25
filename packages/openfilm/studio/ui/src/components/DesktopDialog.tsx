@@ -34,6 +34,7 @@ const AGENTS: { id: string; name: string }[] = [
   { id: 'copilot', name: 'GitHub Copilot' },
   { id: 'cursor', name: 'Cursor' },
   { id: 'opencode', name: 'OpenCode' },
+  { id: 'workbuddy', name: 'WorkBuddy' },
   { id: 'qwen', name: 'Qwen Code' },
   { id: 'kimi', name: 'Kimi' },
   { id: 'minimax', name: 'MiniMax Code' },

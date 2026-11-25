@@ -2642,6 +2642,7 @@ export const ko: Words = {
         antigravity: 'Google Antigravity 자체(터미널에서 agy 실행 후 /logout)',
         opencode: 'OpenCode 앱 또는 터미널의 opencode auth switch',
         codebuddy: 'CodeBuddy 자체(터미널에서 codebuddy 실행)',
+        workbuddy: 'WorkBuddy 앱',
         qwen: 'Qwen Code 자체(터미널에서 qwen 실행 후 /auth)',
         kimi: 'Kimi 자체(터미널에서 kimi login)',
         deepseek: 'DeepSeek Harness 앱',

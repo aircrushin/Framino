@@ -61,7 +61,7 @@ function useHostAgents(): HostAgent[] | null {
 }
 
 /** The person's own agents (the app's AGENTS), in the roster's order. */
-const OWN: readonly HostAgentId[] = ['codex', 'claude', 'copilot', 'cursor', 'opencode', 'codebuddy', 'qwen', 'kimi', 'minimax', 'deepseek', 'antigravity'];
+const OWN: readonly HostAgentId[] = ['codex', 'claude', 'copilot', 'cursor', 'opencode', 'codebuddy', 'workbuddy', 'qwen', 'kimi', 'minimax', 'deepseek', 'antigravity'];
 const MORE_ORDER: Partial<Record<HostAgentId, number>> = { antigravity: 0, deepseek: 1 };
 /** whose maker's mark is its company's */
 function AgentMark({ id }: { id: HostAgentId }) {
