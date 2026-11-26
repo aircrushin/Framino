@@ -256,7 +256,7 @@ Timeline 轨道颜色：Video #557D69、Audio #9B835C、Text #718BA5、Image #8B
 
 注意：以上表示 UI 改造已经完成，不意味着所有 AI 生产能力已经实现。
 
-### 当前阶段：第二阶段 — 完整 AI 视频生产链路
+### 已完成开发：第二阶段 — 完整 AI 视频生产链路
 
 - **Agent 1 — Project Adapter**：研究 OpenFilm Schema；创建 Production Manifest；实现工程转换；验证打开、编辑、保存、重开、导出。
 - **Agent 2 — Video Agent Skill**：实现 Codex / Claude Code 视频创作 Skill；完成 Idea、Script、Storyboard、Generation、Assembly 工作流。
@@ -267,6 +267,13 @@ Timeline 轨道颜色：Video #557D69、Audio #9B835C、Text #718BA5、Image #8B
 五个模块需要遵守统一的 Integration Contract，不能各自发明一套数据结构。
 
 建议集成顺序：1. 统一 Integration Contract；2. 并行开发生成账本、Asset Pipeline、Project Adapter；3. 集成 Skill；4. 完成 E2E；5. 验证 Studio 的完整编辑和导出流程。
+
+五个模块的代码已全部完成，两轮端到端测试均为绿灯：
+
+- **2026-11-25 — MiniMax H3 真实闭环（12/12 步真实通过）**：三段真实的 `provider:minimax` / `MiniMax-H3` 片段加两段合成音频，跑通了创意 → brief、脚本与分镜审批、通过 `openfilm get video` 真实生成、真实中断恢复（已落盘的任务不重复提交）、单镜头重新生成（其他 take 字节不变）、素材校验（含拒绝损坏的 `.mp4`）、装配到不动点、`openfilm look`、Studio 打开/编辑/重开零控制台错误、重装配逐字节保留人工编辑、ffprobe 校验 MP4 导出。驱动：`packages/framino-production/test/e2e-minimax.mjs`。
+- **2026-11-21 — 离线（9/12 步真实通过）**：同样链路，但全部用 ffmpeg 测试素材（`origin: agent-code`，标记 `data-framino-test="true"`）；第 4–6 步当时因未连接服务被阻塞，现已由上面的真实运行覆盖。驱动：`packages/framino-production/test/e2e-offline.mjs`。
+
+详见 `docs/FRAMINO_E2E_TEST_REPORT.md`。第二阶段代码已完成，剩下的不是写代码：由用户确认并产出一条约 30 秒、1920×1080 的真实模型广告片（当前 Demo 是 6 秒测试图案），以及分别用 Codex 和 Claude Code 跑一遍 `skills/framino-production/SKILL.md` 并留存记录。
 
 ---
 

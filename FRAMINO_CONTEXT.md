@@ -112,7 +112,7 @@ icons); studio workspace (toolbar, layout, media, preview, inspector, timeline);
 and timeline skin. This does **not** mean any AI production capability exists. Report:
 `docs/FRAMINO_IMPLEMENTATION_REPORT.md`.
 
-**Phase 2, in progress: the full AI production chain**, five parallel modules under one integration contract:
+**Phase 2, code complete: the full AI production chain**, five parallel modules under one integration contract:
 
 | Agent | Module | Doc |
 | --- | --- | --- |
@@ -125,13 +125,22 @@ and timeline skin. This does **not** mean any AI production capability exists. R
 Integration order: (1) freeze the contract → (2) generation ledger, Pipeline, Adapter in parallel → (3) integrate the Skill →
 (4) E2E → (5) verify full edit and export in Studio.
 
-All five modules are implemented. On 2026-11-21 (`main` @ `310236a`) the **offline E2E ran green**: 9 of the 12
-report steps passed for real (idea → brief, script, storyboard, asset validation, assembly, `openfilm look`, Studio
-open with 0 console errors, edit→reopen→re-assemble, and MP4 export verified by ffprobe); steps 4–6 (real generation,
-crash-resume against a live call, regenerate) are blocked on a person connecting a video service. Every clip in that
-run is an ffmpeg fixture (`origin: agent-code`, tagged `data-framino-test="true"`), not model output. Driver:
-`packages/framino-production/test/e2e-offline.mjs`; results: `docs/FRAMINO_E2E_TEST_REPORT.md`. The remaining Phase 2
-work is the person-approved connected-service run, not code.
+All five modules are implemented. Two E2E runs are green:
+
+- **2026-11-25 — live MiniMax H3 closed loop (12/12 steps real)**: three real `provider:minimax` / `MiniMax-H3` clips
+  plus two synthetic audio fixtures went through idea → brief, script and storyboard approval, real generation via
+  `openfilm get video`, a real mid-run crash recovery that did not re-submit the interrupted task, real regeneration
+  of one shot with the other takes byte-identical, asset validation (including a rejected corrupt `.mp4`), assembly
+  to a fixed point, `openfilm look`, Studio open/edit/reopen with 0 console errors, re-assembly that preserves the
+  person's edits byte-for-byte, and MP4 export verified by ffprobe. Driver:
+  `packages/framino-production/test/e2e-minimax.mjs`.
+- **2026-11-21 — offline (9/12 steps real)**: the same chain with ffmpeg fixtures only (`origin: agent-code`, tagged
+  `data-framino-test="true"`); steps 4–6 were blocked on a connected service and are now covered by the live run.
+  Driver: `packages/framino-production/test/e2e-offline.mjs`.
+
+Results: `docs/FRAMINO_E2E_TEST_REPORT.md`. Phase 2 code is done. What remains is not code: a person-approved ~30 s
+1920×1080 commercial from a real model (the current demo is a 6 s test-pattern spot), and one Codex plus one Claude
+Code transcript of `skills/framino-production/SKILL.md`.
 
 ## 8. MVP target
 
